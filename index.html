@@ -691,6 +691,10 @@ td.num-cell *,
   font-weight: 700;
   color: var(--muted);
 }
+/* Quando slot ocupa 2 colunas, libera a proporção 3/4 para não ficar largo demais */
+.album-grid > [style*="grid-column: span 2"] {
+  aspect-ratio: auto;
+}
 .album-slot.static {
   background: linear-gradient(135deg, var(--prussian), var(--sapphire));
   border-radius: 8px;
@@ -783,6 +787,169 @@ td.num-cell *,
   flex-shrink: 0;
 }
 .gi-team .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ========= LOGIN OVERLAY ========= */
+.login-overlay {
+  position: fixed; inset: 0;
+  background: linear-gradient(160deg, var(--prussian) 0%, var(--sapphire) 60%, var(--cadetan) 100%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+.login-overlay.hidden { display: none; }
+
+.login-card {
+  background: var(--paper);
+  border-radius: 18px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+.login-emoji {
+  font-size: 48px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+.login-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.15;
+  margin-bottom: 4px;
+}
+.login-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 22px;
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.login-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
+.login-label span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.login-label input {
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.login-label input:focus {
+  border-color: var(--carolina);
+}
+.login-error {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  min-height: 16px;
+  text-align: center;
+}
+.login-error:empty { min-height: 0; }
+.login-btn {
+  padding: 14px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.1s, opacity 0.1s;
+}
+.login-btn:active { transform: scale(0.98); }
+.login-btn.primary {
+  background: var(--carolina);
+  color: white;
+}
+.login-btn.primary:hover { background: var(--sapphire); }
+.login-btn.secondary {
+  background: var(--paper-soft);
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+}
+.login-btn.secondary:hover { border-color: var(--cadetan); }
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 14px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.login-divider::before, .login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.login-hint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Banner indicador de modo visitante */
+.visitor-banner {
+  background: linear-gradient(90deg, #fef3c7, #fde68a);
+  color: #78350f;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  text-align: center;
+  border-bottom: 1px solid #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+html[data-theme="dark"] .visitor-banner {
+  background: linear-gradient(90deg, #422006, #78350f);
+  color: #fde68a;
+  border-bottom-color: #b45309;
+}
+.visitor-banner.hidden { display: none; }
+.visitor-banner button {
+  background: rgba(0,0,0,0.1);
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+.visitor-banner button:hover { background: rgba(0,0,0,0.2); }
 
 /* ========= MENU SHEET ========= */
 .sheet-backdrop {
@@ -1509,6 +1676,38 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   <div class="msg" id="loader-msg">Conectando...</div>
 </div>
 
+<!-- TELA DE LOGIN -->
+<div class="login-overlay" id="login-screen">
+  <div class="login-card">
+    <div class="login-emoji">⚽</div>
+    <div class="login-title">Figurinhas da Copa 2026</div>
+    <div class="login-subtitle">Davi Magalhães · Álbum Panini</div>
+
+    <form class="login-form" id="login-form" onsubmit="return false;">
+      <label class="login-label">
+        <span>Usuário</span>
+        <input type="text" id="login-user" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="davi">
+      </label>
+      <label class="login-label">
+        <span>Senha</span>
+        <input type="password" id="login-pass" autocomplete="current-password" inputmode="numeric" placeholder="••••••">
+      </label>
+      <div class="login-error" id="login-error"></div>
+      <button type="submit" class="login-btn primary" id="login-submit">Entrar</button>
+    </form>
+
+    <div class="login-divider"><span>ou</span></div>
+
+    <button class="login-btn secondary" id="login-visitor">👀 Entrar como visitante</button>
+    <div class="login-hint">No modo visitante você pode ver tudo, mas não pode marcar figurinhas.</div>
+  </div>
+</div>
+
+<div class="visitor-banner hidden" id="visitor-banner">
+  <span>👀 Modo visitante · não é possível alterar figurinhas</span>
+  <button id="visitor-login-btn">Entrar</button>
+</div>
+
 <div class="shell">
 
   <header class="topbar">
@@ -1612,7 +1811,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.3
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.5
   </div>
 
 </div>
@@ -1653,6 +1852,13 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="sheet-section">
+    <button class="sheet-btn" id="btn-logout">
+      <span class="icon">⎋</span>
+      <div><div>Sair</div><div style="font-size:11px;color:var(--muted);font-weight:500;margin-top:2px" id="logout-sub">Voltar para tela de login</div></div>
+    </button>
+  </div>
+
+  <div class="sheet-section">
     <button class="sheet-btn danger" id="btn-reset">
       <span class="icon">×</span>
       <div><div>Zerar marcações</div><div style="font-size:11px;color:var(--muted);font-weight:500;margin-top:2px">Apaga tudo desta coleção</div></div>
@@ -1665,7 +1871,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.3';
+const APP_VERSION = '3.5';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -1845,6 +2051,84 @@ let currentFilter = 'all';
 let collapsedGroups = new Set();
 let collapsedTeams = new Set();
 
+// =================== AUTH ===================
+// Modos: 'owner' (Davi · pode alterar) | 'visitor' (só leitura) | null (não logado)
+let authMode = null;
+const AUTH_KEY = 'fc2026-auth';
+const AUTH_OWNER = { user: 'davi', pass: '140419' };
+
+function isOwner() { return authMode === 'owner'; }
+function isVisitor() { return authMode === 'visitor'; }
+
+// Lê auth salvo no localStorage. Retorna 'owner' | 'visitor' | null
+function getStoredAuth() {
+  try { return localStorage.getItem(AUTH_KEY); } catch(e) { return null; }
+}
+function setStoredAuth(mode) {
+  try {
+    if (mode) localStorage.setItem(AUTH_KEY, mode);
+    else localStorage.removeItem(AUTH_KEY);
+  } catch(e) { /* ignora */ }
+}
+
+// Bloqueio para visitantes · usar antes de qualquer mutação
+function blockIfVisitor(label) {
+  if (isVisitor()) {
+    toast('👀 ' + (label || 'Modo visitante') + ' · faça login para alterar', 2500);
+    return true;
+  }
+  if (!isOwner()) {
+    // Se nem visitante nem owner, é estado inválido · não deveria acontecer
+    return true;
+  }
+  return false;
+}
+
+function applyAuthMode(mode) {
+  authMode = mode;
+  const banner = document.getElementById('visitor-banner');
+  if (mode === 'visitor') {
+    banner.classList.remove('hidden');
+    document.body.classList.add('mode-visitor');
+  } else {
+    banner.classList.add('hidden');
+    document.body.classList.remove('mode-visitor');
+  }
+}
+
+function doLogout() {
+  setStoredAuth(null);
+  authMode = null;
+  applyAuthMode(null);
+  // Limpar campos
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').textContent = '';
+  // Mostrar tela de login de novo
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function tryLogin(user, pass) {
+  const u = (user || '').trim().toLowerCase();
+  const p = (pass || '').trim();
+  if (u === AUTH_OWNER.user && p === AUTH_OWNER.pass) {
+    setStoredAuth('owner');
+    applyAuthMode('owner');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('login-error').textContent = '';
+    return true;
+  }
+  document.getElementById('login-error').textContent = 'Usuário ou senha incorretos';
+  if (navigator.vibrate) navigator.vibrate([30, 80, 30]);
+  return false;
+}
+
+function enterAsVisitor() {
+  setStoredAuth('visitor');
+  applyAuthMode('visitor');
+  document.getElementById('login-screen').classList.add('hidden');
+}
+
 // =================== FIREBASE ===================
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -1957,6 +2241,7 @@ function pushHistory(action, code, n) {
 }
 
 function toggleCell(code, n) {
+  if (blockIfVisitor('Marcar figurinha')) return;
   const k = keyOf(code, n);
   const prev = state[k] || 0;
   state[k] = prev + 1;
@@ -1967,6 +2252,7 @@ function toggleCell(code, n) {
   pushState();
 }
 function clearCell(code, n) {
+  if (blockIfVisitor('Zerar figurinha')) return;
   if (!(state[keyOf(code, n)] > 0)) return;
   delete state[keyOf(code, n)];
   pushHistory('clear', code, n);
@@ -1976,6 +2262,7 @@ function clearCell(code, n) {
   pushState();
 }
 function decrementCell(code, n) {
+  if (blockIfVisitor('Decrementar')) return;
   const k = keyOf(code, n);
   const v = state[k] || 0;
   if (v <= 0) return;
@@ -2215,18 +2502,15 @@ function renderTeamAlbumPages(team, groupId) {
   const p2Grid = document.createElement('div');
   p2Grid.className = 'album-grid';
 
-  // Linha 1: 11, 12, foto do time (slot do n.13 = foto + n.14)
+  // Linha 1: 11, 12, 13 (col-span 2 · foto do time + nome em idiomas)
   p2Grid.appendChild(makeSlot(11));
   p2Grid.appendChild(makeSlot(12));
-  p2Grid.appendChild(makeSlot(13));
-  p2Grid.appendChild(makeSlot(14));
+  p2Grid.appendChild(makeSlot(13, 2));
 
-  // Linha 2: 15, 16, 17, 18
-  [15, 16, 17, 18].forEach(n => p2Grid.appendChild(makeSlot(n)));
+  // Linha 2: 14, 15, 16, 17
+  [14, 15, 16, 17].forEach(n => p2Grid.appendChild(makeSlot(n)));
 
-  // Linha 3: 19, 20 + group info (col 3-4)
-  p2Grid.appendChild(makeSlot(19));
-  p2Grid.appendChild(makeSlot(20));
+  // Linha 3: Group info (col 1) + 18, 19, 20
   const groupTeamsList = (function() {
     const g = ALBUM_GROUPS.find(g => g.id === groupId);
     if (!g) return '';
@@ -2237,7 +2521,10 @@ function renderTeamAlbumPages(team, groupId) {
       <div class="gi-title">GROUP ${groupId}</div>
       <div class="gi-teams">${groupTeamsList}</div>
     </div>
-  `, 2, 'group-card'));
+  `, 1, 'group-card'));
+  p2Grid.appendChild(makeSlot(18));
+  p2Grid.appendChild(makeSlot(19));
+  p2Grid.appendChild(makeSlot(20));
 
   p2.appendChild(p2Grid);
   wrap.appendChild(p2);
@@ -2759,6 +3046,7 @@ function exportJSON() {
   toast('Backup baixado');
 }
 function importJSON(file) {
+  if (blockIfVisitor('Importar backup')) return;
   const reader = new FileReader();
   reader.onload = () => {
     try {
@@ -2778,6 +3066,7 @@ function importJSON(file) {
   reader.readAsText(file);
 }
 function resetAll() {
+  if (blockIfVisitor('Zerar coleção')) return;
   if (!confirm('Zerar todas as marcações desta coleção? Esta ação não pode ser desfeita.')) return;
   if (!confirm('Tem certeza? Vai apagar tudo da nuvem também.')) return;
   state = {};
@@ -3105,6 +3394,7 @@ function parseQuickInput(raw) {
 }
 
 function quickAdd() {
+  if (blockIfVisitor('Modo conferir')) return;
   const inputEl = document.getElementById('quick-input');
   const raw = inputEl.value;
   if (!raw.trim()) return;
@@ -3266,6 +3556,44 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth > 720) {
     document.body.className = 'view-mode-table';
     document.querySelectorAll('#view-toggle button').forEach(b => b.classList.toggle('active', b.dataset.view === 'table'));
+  }
+
+  // ===== LOGIN HANDLERS =====
+  // Form submit (Enter ou botão Entrar)
+  document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+    tryLogin(u, p);
+  });
+  document.getElementById('login-submit').addEventListener('click', (e) => {
+    e.preventDefault();
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+    tryLogin(u, p);
+  });
+  // Entrar como visitante
+  document.getElementById('login-visitor').addEventListener('click', enterAsVisitor);
+  // Banner · botão "Entrar" volta pra tela de login
+  document.getElementById('visitor-login-btn').addEventListener('click', () => {
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-user').focus();
+  });
+  // Sair (no menu)
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    closeSheet();
+    doLogout();
+  });
+
+  // Verifica se já está logado · senão mostra tela
+  const saved = getStoredAuth();
+  if (saved === 'owner' || saved === 'visitor') {
+    applyAuthMode(saved);
+    document.getElementById('login-screen').classList.add('hidden');
+  } else {
+    document.getElementById('login-screen').classList.remove('hidden');
+    // Focar no campo usuário
+    setTimeout(() => document.getElementById('login-user').focus(), 100);
   }
 
   bootstrap();
