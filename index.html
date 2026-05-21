@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Davi Magalhães · Figurinhas da Copa 2026</title>
 <meta name="theme-color" content="#13293D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Figurinhas">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%2313293D'/><text x='96' y='130' font-family='Arial Black' font-size='110' font-weight='900' text-anchor='middle' fill='%231B98E0'>⚽</text></svg>">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Davi Magalhães · Figurinhas Copa 2026","short_name":"Figurinhas","description":"Controle do álbum Panini Copa 2026","start_url":"/","display":"standalone","background_color":"%2313293D","theme_color":"%2313293D","orientation":"portrait","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27><rect width=%27192%27 height=%27192%27 rx=%2740%27 fill=%27%2313293D%27/><text x=%2796%27 y=%27130%27 font-family=%27Arial Black%27 font-size=%27110%27 font-weight=%27900%27 text-anchor=%27middle%27 fill=%27%231B98E0%27>⚽</text></svg>","sizes":"192x192","type":"image/svg+xml","purpose":"any"},{"src":"data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27><rect width=%27512%27 height=%27512%27 rx=%27110%27 fill=%27%2313293D%27/><text x=%27256%27 y=%27350%27 font-family=%27Arial Black%27 font-size=%27300%27 font-weight=%27900%27 text-anchor=%27middle%27 fill=%27%231B98E0%27>⚽</text></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any"}]}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://flagcdn.com" crossorigin>
@@ -38,6 +43,27 @@
   --warn: #d97706;
   --warn-soft: #fef3c7;
 }
+
+html[data-theme="dark"] {
+  --bg: #0a1a26;
+  --paper: #112b3f;
+  --paper-soft: #16344c;
+  --ink: var(--azure);
+  --ink-soft: #c4d3dc;
+  --muted: #7d96a8;
+  --line: #234766;
+  --line-soft: #1a364f;
+  --have: var(--carolina);
+  --have-soft: #07334d;
+  --dup: #5fb5e8;
+  --dup-soft: #07334d;
+  --accent: #ef4444;
+  --warn: #fbbf24;
+  --warn-soft: #422006;
+}
+html[data-theme="dark"] .hint { background: #422006; border-color: #78350f; color: #fde68a; }
+html[data-theme="dark"] .quick-row.err { background: #450a0a; border-color: #7f1d1d; }
+html[data-theme="dark"] .compact-section .dup-num { background: #07334d; color: #5fb5e8; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -430,6 +456,30 @@ td.num-cell *,
   min-width: 18px;
   text-align: center;
 }
+.fig-card .dec-btn {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(19, 41, 61, 0.85);
+  color: white;
+  border: none;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.fig-card .dec-btn:hover {
+  background: var(--accent);
+}
 
 /* FWC e CC cards (especiais) */
 .fig-card.special {
@@ -795,11 +845,370 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 .capture-mode { background: white !important; padding: 20px !important; border: none !important; }
 
+/* ========= PAGE NAV ========= */
+.page-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 14px;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.page-nav::-webkit-scrollbar { height: 4px; }
+.page-nav::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.page-btn {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.page-btn:hover { background: var(--paper-soft); }
+.page-btn.active {
+  background: var(--prussian);
+  color: white;
+  border-color: var(--prussian);
+}
+
+/* ========= ACTION ROW ========= */
+.action-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.action-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.action-btn:hover { background: var(--paper-soft); border-color: var(--cadetan); }
+.action-btn.primary {
+  background: var(--carolina);
+  color: white;
+  border-color: var(--carolina);
+}
+.action-btn.primary:hover { background: var(--sapphire); border-color: var(--sapphire); }
+
+/* ========= COMPACT LIST (Faltantes / Repetidas) ========= */
+.compact-list {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+}
+.compact-section {
+  margin-bottom: 14px;
+}
+.compact-section:last-child { margin-bottom: 0; }
+.compact-section h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.compact-section h3 .flag-mini {
+  width: 22px; height: 16px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.compact-section h3 .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+.compact-section h3 .count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-left: auto;
+}
+.compact-section .nums {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding-left: 30px;
+  word-spacing: 4px;
+  line-height: 1.6;
+}
+.compact-section.complete h3 { color: var(--have); }
+.compact-section.complete h3::after {
+  content: '✓';
+  margin-left: 6px;
+  font-size: 14px;
+}
+
+/* repetidas: pode ter contador */
+.compact-section .dup-num {
+  display: inline-block;
+  padding: 1px 6px;
+  background: var(--dup-soft);
+  color: var(--dup-ink);
+  border-radius: 6px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+.compact-section .dup-num .times {
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 3px;
+  opacity: 0.7;
+}
+
+/* ========= QUICK PANEL ========= */
+.quick-panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+}
+.quick-input-row {
+  display: flex;
+  gap: 8px;
+}
+.quick-input {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.quick-input:focus {
+  outline: none;
+  border-color: var(--carolina);
+  box-shadow: 0 0 0 3px rgba(27,152,224,.15);
+}
+.quick-add {
+  padding: 0 22px;
+  background: var(--prussian);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.quick-help {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.quick-feed {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.quick-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.quick-row .flag-mini {
+  width: 24px; height: 18px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.quick-row .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+.quick-row .label {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
+.quick-row .label .name {
+  font-family: 'Sora', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: 8px;
+}
+.quick-row .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.quick-row.add .tag { background: var(--have); color: white; }
+.quick-row.dup .tag { background: var(--dup); color: white; }
+.quick-row.err { background: #fee2e2; border-color: #fca5a5; }
+.quick-row.err .tag { background: var(--accent); color: white; }
+
+/* ========= STATS ========= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+.stat-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+.stat-card h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.stat-card .rank {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.stat-card .rank:last-child { border-bottom: none; }
+.stat-card .rank .pos {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  width: 22px;
+}
+.stat-card .rank .flag-mini {
+  width: 22px; height: 16px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.stat-card .rank .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+.stat-card .rank .label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+}
+.stat-card .rank .bar {
+  flex: 1;
+  height: 6px;
+  background: var(--line-soft);
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 80px;
+}
+.stat-card .rank .bar > span {
+  display: block;
+  height: 100%;
+  background: var(--carolina);
+}
+.stat-card .rank .pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  width: 40px;
+  text-align: right;
+}
+.stat-card .rank.complete .label,
+.stat-card .rank.complete .pct { color: var(--have); }
+.stat-card .rank.complete .bar > span { background: var(--have); }
+
+/* ========= HISTORY ========= */
+.history-list {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 0;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.history-item:last-child { border-bottom: none; }
+.history-item .when {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  width: 100px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.history-item .flag-mini {
+  width: 22px; height: 16px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.history-item .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+.history-item .what {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+.history-item .what b {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+.history-item .action-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+}
+.action-tag.add  { background: var(--have);     color: white; }
+.action-tag.dup  { background: var(--dup);      color: white; }
+.action-tag.dec  { background: var(--cadetan);  color: white; }
+.action-tag.clear{ background: #94a3b8;         color: white; }
+
 @media print {
   body { background: white; }
-  .topbar, .tabs, .hint, .view-toggle, .footer-info, .stats { display: none !important; }
+  .topbar, .tabs, .hint, .view-toggle, .footer-info, .stats, .page-nav, .action-row, .quick-panel { display: none !important; }
+  .page-section[hidden] { display: none !important; }
   .table-wrap { border: none; padding: 0; }
+  .compact-list, .history-list, .stat-card { border: none; padding: 4px 0; }
   .shell { padding: 0; }
+}
+
+@media (max-width: 720px) {
+  .history-item .when { width: 80px; font-size: 9px; }
+  .compact-section .nums { padding-left: 0; font-size: 12px; }
 }
 </style>
 </head>
@@ -834,38 +1243,86 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
     <div class="stat"><div class="label">Progresso</div><div class="value" id="s-pct">0%</div></div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" data-filter="all">Todas <span class="badge" id="b-all">994</span></button>
-    <button class="tab" data-filter="have">Tenho <span class="badge" id="b-have">0</span></button>
-    <button class="tab" data-filter="missing">Faltam <span class="badge" id="b-missing">994</span></button>
-    <button class="tab" data-filter="dup">Repetidas <span class="badge" id="b-dup">0</span></button>
+  <!-- Páginas principais -->
+  <div class="page-nav">
+    <button class="page-btn active" data-page="collection">📋 Coleção</button>
+    <button class="page-btn" data-page="missing">❌ Faltantes</button>
+    <button class="page-btn" data-page="dup">🔄 Repetidas</button>
+    <button class="page-btn" data-page="quick">⚡ Conferir</button>
+    <button class="page-btn" data-page="stats">📊 Stats</button>
+    <button class="page-btn" data-page="history">🕒 Histórico</button>
   </div>
 
-  <div class="view-toggle" id="view-toggle">
-    <button data-view="cards" class="active">Cards</button>
-    <button data-view="table">Tabela</button>
-  </div>
-
-  <div class="hint">
-    <b>Como marcar:</b> 1 toque = "tenho" (azul claro) · novo toque = +1 repetida (azul escuro, contador no canto) · toque longo no celular ou clique direito no desktop = zera a célula.
-  </div>
-
-  <div id="capture-area">
-
-    <!-- CARDS VIEW -->
-    <div class="view-cards" id="cards-container"></div>
-
-    <!-- TABLE VIEW -->
-    <div class="view-table">
-      <div class="table-wrap">
-        <div id="table-container"></div>
-      </div>
+  <!-- Coleção: tabs de filtro + toggle de visualização -->
+  <div class="page-section" data-page-content="collection">
+    <div class="tabs">
+      <button class="tab active" data-filter="all">Todas <span class="badge" id="b-all">994</span></button>
+      <button class="tab" data-filter="have">Tenho <span class="badge" id="b-have">0</span></button>
+      <button class="tab" data-filter="missing">Faltam <span class="badge" id="b-missing">994</span></button>
+      <button class="tab" data-filter="dup">Repetidas <span class="badge" id="b-dup">0</span></button>
     </div>
 
+    <div class="view-toggle" id="view-toggle">
+      <button data-view="cards" class="active">Cards</button>
+      <button data-view="table">Tabela</button>
+    </div>
+
+    <div class="hint">
+      <b>Como marcar:</b> 1 toque = "tenho" (azul claro) · novo toque = +1 repetida (azul escuro, contador no canto) · toque longo no celular ou clique direito no desktop = zera a célula.
+    </div>
+
+    <div id="capture-area">
+      <div class="view-cards" id="cards-container"></div>
+      <div class="view-table">
+        <div class="table-wrap">
+          <div id="table-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Faltantes · lista compacta -->
+  <div class="page-section" data-page-content="missing" hidden>
+    <div class="action-row">
+      <button class="action-btn" id="btn-share-missing">📲 Compartilhar no WhatsApp</button>
+      <button class="action-btn" id="btn-print-missing">🖨️ Imprimir</button>
+    </div>
+    <div id="missing-content" class="compact-list"></div>
+  </div>
+
+  <!-- Repetidas para trocar -->
+  <div class="page-section" data-page-content="dup" hidden>
+    <div class="action-row">
+      <button class="action-btn" id="btn-share-dup">📲 Compartilhar no WhatsApp</button>
+      <button class="action-btn" id="btn-print-dup">🖨️ Imprimir</button>
+    </div>
+    <div id="dup-content" class="compact-list"></div>
+  </div>
+
+  <!-- Conferir · input rápido -->
+  <div class="page-section" data-page-content="quick" hidden>
+    <div class="quick-panel">
+      <div class="quick-input-row">
+        <input type="text" class="quick-input" id="quick-input" placeholder="Ex: BRA 7  ou  FWC 12  ou  CC 3" autocomplete="off" autocapitalize="characters">
+        <button class="quick-add" id="btn-quick-add">+</button>
+      </div>
+      <div class="quick-help">Digite código + número e ENTER. Adiciona à coleção (vira repetida se já tiver). Ideal para abrir pacotes em sequência.</div>
+      <div class="quick-feed" id="quick-feed"></div>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="page-section" data-page-content="stats" hidden>
+    <div id="stats-content"></div>
+  </div>
+
+  <!-- Histórico -->
+  <div class="page-section" data-page-content="history" hidden>
+    <div id="history-content"></div>
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v2.5
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v2.6
   </div>
 
 </div>
@@ -891,6 +1348,11 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </button>
   <input type="file" id="file-import" accept="application/json" style="display:none">
 
+  <button class="sheet-btn" id="btn-theme">
+    <span class="icon" id="theme-icon">🌙</span>
+    <div><div id="theme-label">Modo escuro</div><div style="font-size:11px;color:var(--muted);font-weight:500;margin-top:2px">Alterna tema claro/escuro</div></div>
+  </button>
+
   <div class="sheet-section">
     <div class="label">Coleção sincronizada</div>
     <div class="code-display">
@@ -913,7 +1375,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.6';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -1002,6 +1464,7 @@ const ALBUM_GROUPS = [
 // =================== STATE ===================
 // state["MEX-1"] = 0 (não tem) | 1 (tem) | 2,3,... (tem + N repetidas)
 let state = {};
+let history = []; // últimas 50 ações: { ts, code, n, action: 'add'|'dup'|'clear'|'dec' }
 let collectionCode = null;
 let dbRef = null;
 let isWriting = false; // evita loop de eco
@@ -1067,6 +1530,14 @@ async function attachToCollection(code) {
     } else {
       state = {};
     }
+    if (data && data.history) {
+      try {
+        history = JSON.parse(data.history);
+        if (!Array.isArray(history)) history = [];
+      } catch(e) { history = []; }
+    } else {
+      history = [];
+    }
     if (data && data.updated) {
       lastUpdate = data.updated;
     }
@@ -1086,6 +1557,7 @@ async function pushState() {
   try {
     await dbRef.set({
       state: JSON.stringify(state),
+      history: JSON.stringify(history),
       updated: firebase.database.ServerValue.TIMESTAMP,
       owner: auth.currentUser ? auth.currentUser.uid : null
     });
@@ -1108,16 +1580,40 @@ function cellStatus(code, n) {
   return { cls: 'dup', dup: v - 1, have: true };
 }
 
+function pushHistory(action, code, n) {
+  history.unshift({ ts: Date.now(), action, code, n });
+  if (history.length > 50) history.length = 50;
+}
+
 function toggleCell(code, n) {
   const k = keyOf(code, n);
-  state[k] = (state[k] || 0) + 1;
+  const prev = state[k] || 0;
+  state[k] = prev + 1;
+  pushHistory(prev === 0 ? 'add' : 'dup', code, n);
   lastUpdate = Date.now();
   renderAll();
   renderLastUpdate();
   pushState();
 }
 function clearCell(code, n) {
+  if (!(state[keyOf(code, n)] > 0)) return;
   delete state[keyOf(code, n)];
+  pushHistory('clear', code, n);
+  lastUpdate = Date.now();
+  renderAll();
+  renderLastUpdate();
+  pushState();
+}
+function decrementCell(code, n) {
+  const k = keyOf(code, n);
+  const v = state[k] || 0;
+  if (v <= 0) return;
+  if (v === 1) {
+    delete state[k];
+  } else {
+    state[k] = v - 1;
+  }
+  pushHistory('dec', code, n);
   lastUpdate = Date.now();
   renderAll();
   renderLastUpdate();
@@ -1177,6 +1673,17 @@ function makeFigCard(opts) {
     b.className = 'badge';
     b.textContent = '+' + st.dup;
     div.appendChild(b);
+    // Botão − para decrementar (uso após trocar)
+    const dec = document.createElement('button');
+    dec.className = 'dec-btn';
+    dec.innerHTML = '−';
+    dec.title = 'Tirar 1 repetida (após troca)';
+    dec.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      decrementCell(opts.code, opts.n);
+    });
+    dec.addEventListener('touchstart', (ev) => ev.stopPropagation(), { passive: true });
+    div.appendChild(dec);
   }
 
   attachCellEvents(div, opts.code, opts.n);
@@ -1545,6 +2052,11 @@ function renderAll() {
   updateStats();
   renderCards();
   renderTable();
+  // Atualiza a página ativa também
+  if (currentPage === 'missing') renderMissingPage();
+  if (currentPage === 'dup') renderDupPage();
+  if (currentPage === 'stats') renderStatsPage();
+  if (currentPage === 'history') renderHistoryPage();
 }
 
 // =================== MENU SHEET ===================
@@ -1738,6 +2250,7 @@ function resetAll() {
   if (!confirm('Zerar todas as marcações desta coleção? Esta ação não pode ser desfeita.')) return;
   if (!confirm('Tem certeza? Vai apagar tudo da nuvem também.')) return;
   state = {};
+  history = [];
   pushState();
   toast('Coleção zerada');
   closeSheet();
@@ -1752,8 +2265,410 @@ function hideLoader() {
   document.getElementById('loader').classList.add('hide');
 }
 
+// =================== HELPERS DE NOME/BANDEIRA ===================
+function teamByCode(code) {
+  for (const g of ALBUM_GROUPS) {
+    for (const t of g.teams) if (t.code === code) return t;
+  }
+  if (code === 'FWC') return { name: 'Página Inicial', code: 'FWC' };
+  if (code === 'CC')  return { name: 'Coca-Cola',      code: 'CC' };
+  return null;
+}
+function flagMini(code) {
+  const url = flagURL(code);
+  if (!url) return '';
+  return `<div class="flag-mini"><img src="${url}" alt="${code}" loading="lazy"></div>`;
+}
+
+// =================== PAGE SWITCHING ===================
+let currentPage = 'collection';
+function switchPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.page-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  document.querySelectorAll('.page-section').forEach(s => {
+    s.hidden = s.dataset.pageContent !== page;
+  });
+  if (page === 'missing') renderMissingPage();
+  if (page === 'dup') renderDupPage();
+  if (page === 'stats') renderStatsPage();
+  if (page === 'history') renderHistoryPage();
+  if (page === 'quick') setTimeout(() => document.getElementById('quick-input').focus(), 50);
+}
+
+// =================== AGRUPAR FALTANTES / REPETIDAS ===================
+function getMissingByTeam() {
+  // retorna [{ name, code, missing: [1,2,...], have, total }]
+  const result = [];
+  // FWC
+  const fwcMissing = [];
+  for (let i = 0; i <= 19; i++) if (!(state[keyOf('FWC', i)] >= 1)) fwcMissing.push(i);
+  if (fwcMissing.length > 0) result.push({ name: 'Página Inicial', code: 'FWC', missing: fwcMissing, have: 20 - fwcMissing.length, total: 20 });
+  // Seleções
+  ALBUM_GROUPS.forEach(g => {
+    g.teams.forEach(t => {
+      const miss = [];
+      for (let i = 1; i <= 20; i++) if (!(state[keyOf(t.code, i)] >= 1)) miss.push(i);
+      if (miss.length > 0) result.push({ name: t.name, code: t.code, group: g.id, missing: miss, have: 20 - miss.length, total: 20 });
+    });
+  });
+  // Coca-Cola
+  const ccMissing = [];
+  for (let i = 1; i <= 14; i++) if (!(state[keyOf('CC', i)] >= 1)) ccMissing.push(i);
+  if (ccMissing.length > 0) result.push({ name: 'Coca-Cola', code: 'CC', missing: ccMissing, have: 14 - ccMissing.length, total: 14 });
+  return result;
+}
+
+function getDuplicatesByTeam() {
+  // retorna [{ name, code, dups: [{ n, times }] }]
+  const result = [];
+  const collect = (code, name, group, range) => {
+    const dups = [];
+    for (const i of range) {
+      const v = state[keyOf(code, i)] || 0;
+      if (v > 1) dups.push({ n: i, times: v - 1 });
+    }
+    if (dups.length > 0) result.push({ name, code, group, dups });
+  };
+  collect('FWC', 'Página Inicial', null, Array.from({length: 20}, (_, i) => i));
+  ALBUM_GROUPS.forEach(g => {
+    g.teams.forEach(t => collect(t.code, t.name, g.id, Array.from({length: 20}, (_, i) => i + 1)));
+  });
+  collect('CC', 'Coca-Cola', null, Array.from({length: 14}, (_, i) => i + 1));
+  return result;
+}
+
+// Compacta lista de números: [1,2,3,5,7,8] → "1-3, 5, 7-8"
+function compactRanges(nums) {
+  if (nums.length === 0) return '—';
+  const sorted = [...nums].sort((a, b) => a - b);
+  const result = [];
+  let start = sorted[0], end = sorted[0];
+  for (let i = 1; i <= sorted.length; i++) {
+    if (i < sorted.length && sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      result.push(start === end ? String(start) : (end - start === 1 ? `${start}, ${end}` : `${start}-${end}`));
+      if (i < sorted.length) { start = sorted[i]; end = sorted[i]; }
+    }
+  }
+  return result.join(', ');
+}
+
+function renderMissingPage() {
+  const data = getMissingByTeam();
+  const el = document.getElementById('missing-content');
+  if (data.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="em">🎉</span>Álbum completo! Nenhuma figurinha falta.</div>';
+    return;
+  }
+  let html = '';
+  const totalMissing = data.reduce((s, t) => s + t.missing.length, 0);
+  html += `<div style="margin-bottom:14px;font-size:13px;color:var(--muted);"><b style="color:var(--accent);font-family:'JetBrains Mono',monospace;">${totalMissing}</b> figurinhas faltam em <b style="color:var(--ink);">${data.length}</b> seções</div>`;
+  data.forEach(t => {
+    html += '<div class="compact-section">';
+    html += '<h3>';
+    html += flagMini(t.code);
+    html += `<span>${t.name} <span style="color:var(--muted);font-weight:500;font-size:12px;">${t.code}</span></span>`;
+    html += `<span class="count">${t.have}/${t.total}</span>`;
+    html += '</h3>';
+    html += `<div class="nums">${compactRanges(t.missing)}</div>`;
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderDupPage() {
+  const data = getDuplicatesByTeam();
+  const el = document.getElementById('dup-content');
+  if (data.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="em">—</span>Nenhuma figurinha repetida ainda.</div>';
+    return;
+  }
+  let totalDups = 0;
+  data.forEach(t => t.dups.forEach(d => totalDups += d.times));
+  let html = `<div style="margin-bottom:14px;font-size:13px;color:var(--muted);"><b style="color:var(--dup);font-family:'JetBrains Mono',monospace;">${totalDups}</b> repetidas disponíveis em <b style="color:var(--ink);">${data.length}</b> seções</div>`;
+  data.forEach(t => {
+    html += '<div class="compact-section">';
+    html += '<h3>';
+    html += flagMini(t.code);
+    html += `<span>${t.name} <span style="color:var(--muted);font-weight:500;font-size:12px;">${t.code}</span></span>`;
+    const totalLocal = t.dups.reduce((s, d) => s + d.times, 0);
+    html += `<span class="count">${totalLocal} repetidas</span>`;
+    html += '</h3>';
+    html += '<div class="nums">';
+    t.dups.forEach(d => {
+      html += `<span class="dup-num">${d.n}${d.times > 1 ? '<span class="times">×' + d.times + '</span>' : ''}</span>`;
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
+}
+
+// =================== WHATSAPP SHARE ===================
+function buildShareTextMissing() {
+  const data = getMissingByTeam();
+  if (data.length === 0) return '🎉 Álbum completo! Davi Magalhães terminou a coleção da Copa 2026.';
+  let txt = `*Davi Magalhães · Figurinhas Copa 2026*\n*Faltam ${data.reduce((s, t) => s + t.missing.length, 0)} figurinhas*\n\n`;
+  data.forEach(t => {
+    txt += `${t.name} (${t.code}): ${compactRanges(t.missing)}\n`;
+  });
+  txt += '\nTem alguma dessas pra trocar?';
+  return txt;
+}
+function buildShareTextDup() {
+  const data = getDuplicatesByTeam();
+  if (data.length === 0) return 'Sem repetidas ainda.';
+  let total = 0;
+  data.forEach(t => t.dups.forEach(d => total += d.times));
+  let txt = `*Davi Magalhães · Figurinhas Copa 2026*\n*${total} repetidas pra trocar*\n\n`;
+  data.forEach(t => {
+    const parts = t.dups.map(d => d.times > 1 ? `${d.n} (×${d.times})` : String(d.n));
+    txt += `${t.name} (${t.code}): ${parts.join(', ')}\n`;
+  });
+  txt += '\nPrecisa de alguma?';
+  return txt;
+}
+function shareWhatsApp(text) {
+  const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(url, '_blank');
+}
+
+// =================== STATS PAGE ===================
+function renderStatsPage() {
+  const el = document.getElementById('stats-content');
+
+  // Por seleção · ranking
+  const teams = [];
+  ALBUM_GROUPS.forEach(g => {
+    g.teams.forEach(t => {
+      const have = teamProgress(t.code);
+      teams.push({ name: t.name, code: t.code, group: g.id, have, total: 20, pct: (have / 20) * 100 });
+    });
+  });
+
+  const topTeams = [...teams].sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name)).slice(0, 10);
+  const bottomTeams = [...teams].sort((a, b) => a.pct - b.pct || a.name.localeCompare(b.name)).slice(0, 10);
+
+  // Por grupo · ranking
+  const groups = ALBUM_GROUPS.map(g => {
+    const have = g.teams.reduce((s, t) => s + teamProgress(t.code), 0);
+    const total = g.teams.length * 20;
+    return { id: g.id, have, total, pct: (have / total) * 100 };
+  });
+  groups.sort((a, b) => b.pct - a.pct);
+
+  // Seções especiais
+  const fwcHave = fwcProgress();
+  const ccHave = ccProgress();
+
+  let html = '<div class="stats-grid">';
+
+  // Card · grupos
+  html += '<div class="stat-card"><h4>📊 Grupos · ranking</h4>';
+  groups.forEach((g, i) => {
+    const isComplete = g.pct >= 100;
+    html += `<div class="rank ${isComplete ? 'complete' : ''}">`;
+    html += `<span class="pos">${i + 1}º</span>`;
+    html += `<span class="label">Grupo ${g.id}</span>`;
+    html += `<span class="bar"><span style="width:${g.pct}%"></span></span>`;
+    html += `<span class="pct">${g.pct.toFixed(0)}%</span>`;
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Card · top seleções
+  html += '<div class="stat-card"><h4>🏆 Seleções mais completas</h4>';
+  topTeams.forEach((t, i) => {
+    const isComplete = t.pct >= 100;
+    html += `<div class="rank ${isComplete ? 'complete' : ''}">`;
+    html += `<span class="pos">${i + 1}º</span>`;
+    html += flagMini(t.code);
+    html += `<span class="label">${t.name}</span>`;
+    html += `<span class="pct">${t.have}/20</span>`;
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Card · piores seleções
+  html += '<div class="stat-card"><h4>🚨 Seleções que faltam mais</h4>';
+  bottomTeams.forEach((t, i) => {
+    html += `<div class="rank">`;
+    html += `<span class="pos">${i + 1}º</span>`;
+    html += flagMini(t.code);
+    html += `<span class="label">${t.name}</span>`;
+    html += `<span class="pct">${t.have}/20</span>`;
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Card · seções especiais
+  html += '<div class="stat-card"><h4>⭐ Seções especiais</h4>';
+  html += `<div class="rank ${fwcHave >= 20 ? 'complete' : ''}">`;
+  html += '<span class="pos"></span><span class="label">Página Inicial (FWC)</span>';
+  html += `<span class="bar"><span style="width:${(fwcHave/20)*100}%"></span></span>`;
+  html += `<span class="pct">${fwcHave}/20</span></div>`;
+  html += `<div class="rank ${ccHave >= 14 ? 'complete' : ''}">`;
+  html += '<span class="pos"></span><span class="label">Coca-Cola</span>';
+  html += `<span class="bar"><span style="width:${(ccHave/14)*100}%"></span></span>`;
+  html += `<span class="pct">${ccHave}/14</span></div>`;
+  html += '</div>';
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// =================== HISTORY PAGE ===================
+function renderHistoryPage() {
+  const el = document.getElementById('history-content');
+  if (!history || history.length === 0) {
+    el.innerHTML = '<div class="empty-state"><span class="em">🕒</span>Nenhuma ação registrada ainda.</div>';
+    return;
+  }
+  let html = '<div class="history-list">';
+  history.forEach(h => {
+    const team = teamByCode(h.code);
+    const teamName = team ? team.name : h.code;
+    const d = new Date(h.ts);
+    const when = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
+    }).format(d);
+    let tag = '', label = '';
+    if (h.action === 'add')   { tag = 'add';   label = 'marcou'; }
+    if (h.action === 'dup')   { tag = 'dup';   label = '+1 rep.'; }
+    if (h.action === 'dec')   { tag = 'dec';   label = '-1 rep.'; }
+    if (h.action === 'clear') { tag = 'clear'; label = 'zerou'; }
+    const numDisplay = (h.code === 'FWC' && h.n < 10) ? ('0' + h.n) : (h.code === 'CC' ? 'CC' + h.n : String(h.n));
+    html += `<div class="history-item">`;
+    html += `<span class="when">${when}</span>`;
+    html += flagMini(h.code);
+    html += `<span class="what"><b>${h.code}-${numDisplay}</b> <span style="color:var(--muted);">${teamName}</span></span>`;
+    html += `<span class="action-tag ${tag}">${label}</span>`;
+    html += '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// =================== QUICK CONFER ===================
+function parseQuickInput(raw) {
+  // Aceita: "BRA 7", "BRA-7", "bra7", "FWC 0", "CC 3"
+  const s = raw.trim().toUpperCase().replace(/[-\s]+/g, '');
+  const m = s.match(/^([A-Z]{2,3})(\d{1,2})$/);
+  if (!m) return null;
+  const code = m[1];
+  const n = parseInt(m[2], 10);
+  // valida
+  if (code === 'FWC') {
+    if (n < 0 || n > 19) return null;
+    return { code, n };
+  }
+  if (code === 'CC') {
+    if (n < 1 || n > 14) return null;
+    return { code, n };
+  }
+  const team = teamByCode(code);
+  if (!team) return null;
+  if (n < 1 || n > 20) return null;
+  return { code, n };
+}
+
+function quickAdd() {
+  const inputEl = document.getElementById('quick-input');
+  const raw = inputEl.value;
+  if (!raw.trim()) return;
+  const parsed = parseQuickInput(raw);
+  const feed = document.getElementById('quick-feed');
+  if (!parsed) {
+    const row = document.createElement('div');
+    row.className = 'quick-row err';
+    row.innerHTML = `<div class="label">${raw}</div><span class="tag">inválido</span>`;
+    feed.prepend(row);
+    if (navigator.vibrate) navigator.vibrate([20, 60, 20]);
+    inputEl.value = '';
+    inputEl.focus();
+    return;
+  }
+  const k = keyOf(parsed.code, parsed.n);
+  const before = state[k] || 0;
+  toggleCell(parsed.code, parsed.n);
+  const after = state[k] || 0;
+  const team = teamByCode(parsed.code);
+  const numDisplay = (parsed.code === 'FWC' && parsed.n < 10) ? ('0' + parsed.n) : (parsed.code === 'CC' ? 'CC' + parsed.n : String(parsed.n));
+  const row = document.createElement('div');
+  const isDup = before > 0;
+  row.className = 'quick-row ' + (isDup ? 'dup' : 'add');
+  row.innerHTML = `
+    ${flagMini(parsed.code)}
+    <div class="label"><b>${parsed.code}-${numDisplay}</b><span class="name">${team ? team.name : ''}</span></div>
+    <span class="tag">${isDup ? '+1 rep. (×' + (after - 1) + ')' : 'novo!'}</span>
+  `;
+  feed.prepend(row);
+  if (navigator.vibrate) navigator.vibrate(isDup ? 20 : [10, 30, 10]);
+  inputEl.value = '';
+  inputEl.focus();
+}
+
+// =================== THEME ===================
+const THEME_KEY = 'fc2026-theme';
+function applyTheme(t) {
+  if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+  const icon = document.getElementById('theme-icon');
+  const label = document.getElementById('theme-label');
+  if (icon)  icon.textContent  = t === 'dark' ? '☀️' : '🌙';
+  if (label) label.textContent = t === 'dark' ? 'Modo claro' : 'Modo escuro';
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', t === 'dark' ? '#0a1a26' : '#13293D');
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+}
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved) {
+    applyTheme(saved);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyTheme('dark');
+  } else {
+    applyTheme('light');
+  }
+}
+
+// =================== SERVICE WORKER (PWA) ===================
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  // SW mínimo gerado em runtime via Blob
+  const swCode = `
+    const CACHE = 'figurinhas-v2.6';
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+    self.addEventListener('fetch', e => {
+      if (e.request.method !== 'GET') return;
+      e.respondWith(
+        caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
+          if (resp && resp.status === 200 && (e.request.url.includes('flagcdn.com') || e.request.url.includes('fonts.gstatic.com'))) {
+            const clone = resp.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return resp;
+        }).catch(() => caches.match(e.request)))
+      );
+    });
+  `;
+  try {
+    const blob = new Blob([swCode], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(err => console.log('SW reg failed (esperado em localhost com Blob URL):', err.message));
+  } catch(e) { /* silencioso */ }
+}
+
 // =================== INIT ===================
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  registerSW();
   // Tabs
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -1807,6 +2722,32 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // (Código de coleção é fixo · sem opção de trocar)
+
+  // Theme toggle
+  document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+
+  // Page switching
+  document.querySelectorAll('.page-btn').forEach(b => {
+    b.addEventListener('click', () => switchPage(b.dataset.page));
+  });
+
+  // Share & print - Missing
+  document.getElementById('btn-share-missing').addEventListener('click', () => {
+    shareWhatsApp(buildShareTextMissing());
+  });
+  document.getElementById('btn-print-missing').addEventListener('click', () => window.print());
+
+  // Share & print - Dup
+  document.getElementById('btn-share-dup').addEventListener('click', () => {
+    shareWhatsApp(buildShareTextDup());
+  });
+  document.getElementById('btn-print-dup').addEventListener('click', () => window.print());
+
+  // Quick add
+  document.getElementById('btn-quick-add').addEventListener('click', quickAdd);
+  document.getElementById('quick-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); quickAdd(); }
+  });
 
   // Default mode based on viewport
   if (window.innerWidth > 720) {
