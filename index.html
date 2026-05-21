@@ -1043,7 +1043,8 @@ async function pushState() {
     setSyncStatus('online', 'sincronizado');
   } catch(e) {
     console.error('Push error:', e);
-    setSyncStatus('offline', 'erro ao salvar');
+    setSyncStatus('offline', 'erro · regra do banco?');
+    toast('Erro ao salvar: ' + (e.message || e.code || 'sem permissão'), 4000);
   } finally {
     setTimeout(() => { isWriting = false; }, 200);
   }
@@ -1061,10 +1062,12 @@ function cellStatus(code, n) {
 function toggleCell(code, n) {
   const k = keyOf(code, n);
   state[k] = (state[k] || 0) + 1;
+  renderAll();      // <- UI atualiza IMEDIATAMENTE
   pushState();
 }
 function clearCell(code, n) {
   delete state[keyOf(code, n)];
+  renderAll();      // <- UI atualiza IMEDIATAMENTE
   pushState();
 }
 
