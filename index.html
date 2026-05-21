@@ -1797,8 +1797,9 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   <!-- Faltantes · lista compacta -->
   <div class="page-section" data-page-content="missing" hidden>
     <div class="action-row">
-      <button class="action-btn" id="btn-share-missing">📲 Compartilhar no WhatsApp</button>
-      <button class="action-btn" id="btn-print-missing">🖨️ Imprimir</button>
+      <button class="action-btn primary" id="btn-share-missing">📲 WhatsApp</button>
+      <button class="action-btn" id="btn-copy-missing">📋 Copiar texto</button>
+      <button class="action-btn" id="btn-pdf-missing">📄 PDF (1 página)</button>
     </div>
     <div id="missing-content" class="compact-list"></div>
   </div>
@@ -1806,8 +1807,9 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   <!-- Repetidas para trocar -->
   <div class="page-section" data-page-content="dup" hidden>
     <div class="action-row">
-      <button class="action-btn" id="btn-share-dup">📲 Compartilhar no WhatsApp</button>
-      <button class="action-btn" id="btn-print-dup">🖨️ Imprimir</button>
+      <button class="action-btn primary" id="btn-share-dup">📲 WhatsApp</button>
+      <button class="action-btn" id="btn-copy-dup">📋 Copiar texto</button>
+      <button class="action-btn" id="btn-pdf-dup">📄 PDF (1 página)</button>
     </div>
     <div id="dup-content" class="compact-list"></div>
   </div>
@@ -1835,7 +1837,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.6
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.7
   </div>
 
 </div>
@@ -1895,7 +1897,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.6';
+const APP_VERSION = '3.7';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -3283,6 +3285,204 @@ function shareWhatsApp(text) {
   window.open(url, '_blank');
 }
 
+// Copiar texto para a área de transferência · com fallback
+async function copyText(text) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      toast('📋 Copiado para a área de transferência');
+      return true;
+    }
+  } catch(e) { /* cai no fallback */ }
+  // Fallback: textarea + execCommand (iOS Safari antigo)
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast(ok ? '📋 Copiado' : 'Não foi possível copiar');
+    return ok;
+  } catch(e) {
+    toast('Não foi possível copiar');
+    return false;
+  }
+}
+
+// Gera PDF compacto de UMA página A4 (faltantes ou repetidas)
+// items: array de strings já formatadas (uma linha por seleção)
+// title, subtitle: cabeçalho
+function buildCompactPDF(title, subtitle, items, filename) {
+  if (!window.jspdf) { toast('PDF indisponível'); return; }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+  const pageW = pdf.internal.pageSize.getWidth();   // 210
+  const pageH = pdf.internal.pageSize.getHeight();  // 297
+  const margin = 10;
+  const usableW = pageW - margin * 2;
+
+  // Cabeçalho
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(14);
+  pdf.setTextColor(19, 41, 61); // prussian
+  pdf.text(title, margin, margin + 6);
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.setTextColor(85, 99, 113);
+  pdf.text(subtitle, margin, margin + 11);
+
+  // Data no topo direito
+  const now = new Date();
+  const dataStr = now.toLocaleDateString('pt-BR') + ' · ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  pdf.setFontSize(8);
+  pdf.text(dataStr, pageW - margin, margin + 4, { align: 'right' });
+  pdf.text('figurinhas.solucoesr2.com.br', pageW - margin, margin + 8, { align: 'right' });
+
+  // Linha separadora
+  pdf.setDrawColor(200, 210, 220);
+  pdf.setLineWidth(0.3);
+  pdf.line(margin, margin + 14, pageW - margin, margin + 14);
+
+  // Área da lista
+  const listTop = margin + 18;
+  const listBottom = pageH - margin - 6;
+  const listH = listBottom - listTop;
+
+  // Rodapé fixo
+  pdf.setFontSize(7);
+  pdf.setTextColor(140, 150, 160);
+  pdf.text('R2 Soluções · Davi Magalhães · Álbum Panini Copa 2026™', pageW / 2, pageH - margin + 2, { align: 'center' });
+
+  // Calcular layout dinamicamente para caber em 1 página
+  // Testa 1, 2 e 3 colunas com fontSizes 10, 9, 8, 7, 6 até caber
+  const tryLayouts = [
+    { cols: 1, fontSize: 10, lineH: 4.6 },
+    { cols: 2, fontSize: 10, lineH: 4.6 },
+    { cols: 2, fontSize: 9,  lineH: 4.2 },
+    { cols: 2, fontSize: 8,  lineH: 3.8 },
+    { cols: 3, fontSize: 8,  lineH: 3.8 },
+    { cols: 2, fontSize: 7,  lineH: 3.4 },
+    { cols: 3, fontSize: 7,  lineH: 3.4 },
+    { cols: 3, fontSize: 6,  lineH: 3.0 },
+    { cols: 4, fontSize: 6,  lineH: 3.0 },
+  ];
+
+  let chosen = null;
+  let chosenWrapped = null;
+
+  for (const layout of tryLayouts) {
+    const colGap = 4;
+    const colW = (usableW - colGap * (layout.cols - 1)) / layout.cols;
+    pdf.setFontSize(layout.fontSize);
+    // Quebrar cada item em linhas com splitTextToSize
+    const wrapped = items.map(it => pdf.splitTextToSize(it, colW));
+    // Total de linhas que cada coluna pode comportar
+    const linesPerCol = Math.floor(listH / layout.lineH);
+    // Distribuir items entre colunas em sequência
+    let totalLines = 0;
+    wrapped.forEach(w => totalLines += w.length);
+    // Se distribuirmos em N colunas idealmente, cada coluna teria totalLines / cols
+    const linesPerColNeeded = Math.ceil(totalLines / layout.cols);
+    if (linesPerColNeeded <= linesPerCol) {
+      chosen = { ...layout, colW, colGap };
+      chosenWrapped = wrapped;
+      break;
+    }
+  }
+
+  // Se nenhum couber, usa o último (mais comprimido) mesmo
+  if (!chosen) {
+    const last = tryLayouts[tryLayouts.length - 1];
+    const colGap = 4;
+    chosen = { ...last, colW: (usableW - colGap * (last.cols - 1)) / last.cols, colGap };
+    pdf.setFontSize(last.fontSize);
+    chosenWrapped = items.map(it => pdf.splitTextToSize(it, chosen.colW));
+  }
+
+  // Render
+  pdf.setFontSize(chosen.fontSize);
+  pdf.setTextColor(30, 41, 59);
+  pdf.setFont('helvetica', 'normal');
+
+  // Achata em linhas com flag de "primeira linha de item" (pra negrito do nome)
+  const flatLines = [];
+  chosenWrapped.forEach((wrap, idx) => {
+    wrap.forEach((line, i) => {
+      flatLines.push({ text: line, isFirst: i === 0, itemIdx: idx });
+    });
+  });
+
+  const linesPerCol = Math.ceil(flatLines.length / chosen.cols);
+  let lineIdx = 0;
+  for (let col = 0; col < chosen.cols; col++) {
+    const x = margin + col * (chosen.colW + chosen.colGap);
+    let y = listTop;
+    for (let l = 0; l < linesPerCol && lineIdx < flatLines.length; l++, lineIdx++) {
+      const line = flatLines[lineIdx];
+      if (line.isFirst) {
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(19, 41, 61);
+      } else {
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(60, 70, 80);
+      }
+      // Para não estourar a página
+      if (y > listBottom) break;
+      pdf.text(line.text, x, y);
+      y += chosen.lineH;
+    }
+  }
+
+  pdf.save(filename);
+  toast('📄 PDF gerado');
+}
+
+// PDF compacto de faltantes
+function exportPDFMissingCompact() {
+  const data = getMissingByTeam();
+  if (data.length === 0) {
+    toast('🎉 Nada faltando!');
+    return;
+  }
+  const total = data.reduce((s, t) => s + t.missing.length, 0);
+  // Item por seleção: "Nome (CODE): 1, 3, 5-8, 12"
+  const items = data.map(t => `${t.name} (${t.code}): ${compactRanges(t.missing)}`);
+  buildCompactPDF(
+    'Davi Magalhães · Figurinhas Copa 2026',
+    `Faltam ${total} figurinhas · ${data.length} seleções`,
+    items,
+    `faltantes-copa2026-${Date.now()}.pdf`
+  );
+}
+
+// PDF compacto de repetidas
+function exportPDFDupCompact() {
+  const data = getDuplicatesByTeam();
+  if (data.length === 0) {
+    toast('Sem repetidas ainda.');
+    return;
+  }
+  let total = 0;
+  data.forEach(t => t.dups.forEach(d => total += d.times));
+  const items = data.map(t => {
+    const parts = t.dups.map(d => d.times > 1 ? `${d.n} (x${d.times})` : String(d.n));
+    return `${t.name} (${t.code}): ${parts.join(', ')}`;
+  });
+  buildCompactPDF(
+    'Davi Magalhães · Figurinhas Copa 2026',
+    `${total} repetidas pra trocar · ${data.length} seleções`,
+    items,
+    `repetidas-copa2026-${Date.now()}.pdf`
+  );
+}
+
 // =================== STATS PAGE ===================
 function renderStatsPage() {
   const el = document.getElementById('stats-content');
@@ -3564,17 +3764,23 @@ document.addEventListener('DOMContentLoaded', () => {
     b.addEventListener('click', () => switchPage(b.dataset.page));
   });
 
-  // Share & print - Missing
+  // Faltantes · WhatsApp, copiar, PDF
   document.getElementById('btn-share-missing').addEventListener('click', () => {
     shareWhatsApp(buildShareTextMissing());
   });
-  document.getElementById('btn-print-missing').addEventListener('click', () => window.print());
+  document.getElementById('btn-copy-missing').addEventListener('click', () => {
+    copyText(buildShareTextMissing());
+  });
+  document.getElementById('btn-pdf-missing').addEventListener('click', exportPDFMissingCompact);
 
-  // Share & print - Dup
+  // Repetidas · WhatsApp, copiar, PDF
   document.getElementById('btn-share-dup').addEventListener('click', () => {
     shareWhatsApp(buildShareTextDup());
   });
-  document.getElementById('btn-print-dup').addEventListener('click', () => window.print());
+  document.getElementById('btn-copy-dup').addEventListener('click', () => {
+    copyText(buildShareTextDup());
+  });
+  document.getElementById('btn-pdf-dup').addEventListener('click', exportPDFDupCompact);
 
   // Quick add
   document.getElementById('btn-quick-add').addEventListener('click', quickAdd);
