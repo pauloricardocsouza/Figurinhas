@@ -604,30 +604,59 @@ td.num-cell *,
 .fig-card.panini-emblem.have .pn-emblem-code,
 .fig-card.panini-emblem.dup .pn-emblem-code { color: white; }
 
-/* Foto do Time · slot do n.13 */
+/* Foto do Time · slot do n.13 · layout horizontal pra usar bem o col-span 2 */
 .fig-card.panini-photo {
   background: linear-gradient(135deg, var(--paper), var(--paper-soft));
   border: 1px solid var(--line);
-  justify-content: center;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
 }
-.fig-card.panini-photo .pn-photo-icon {
-  font-size: 22px;
-  line-height: 1;
+.fig-card.panini-photo .pn-photo-flag {
+  width: 48px;
+  height: 36px;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.fig-card.panini-photo .pn-photo-flag img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.fig-card.panini-photo .pn-photo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
 }
 .fig-card.panini-photo .pn-photo-label {
   font-size: 8px;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+.fig-card.panini-photo .pn-photo-team {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--card-name);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .fig-card.panini-photo .pn-photo-code {
   font-family: 'JetBrains Mono', monospace;
-  font-weight: 800;
-  font-size: 11px;
-  color: var(--card-name);
-  margin-top: 2px;
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-top: 1px;
 }
 .fig-card.panini-photo.have,
 .fig-card.panini-photo.dup {
@@ -636,9 +665,13 @@ td.num-cell *,
 }
 .fig-card.panini-photo.dup { background: var(--dup); border-color: var(--dup); }
 .fig-card.panini-photo.have .pn-photo-label,
+.fig-card.panini-photo.have .pn-photo-team,
 .fig-card.panini-photo.have .pn-photo-code,
 .fig-card.panini-photo.dup .pn-photo-label,
-.fig-card.panini-photo.dup .pn-photo-code { color: white; }
+.fig-card.panini-photo.dup .pn-photo-team,
+.fig-card.panini-photo.dup .pn-photo-code { color: white; opacity: 0.95; }
+.fig-card.panini-photo.have .pn-photo-flag,
+.fig-card.panini-photo.dup .pn-photo-flag { border-color: rgba(255,255,255,0.4); }
 
 /* ========= ALBUM PAGES (layout fiel à Panini) ========= */
 .album-pages {
@@ -750,43 +783,55 @@ td.num-cell *,
 .group-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  gap: 4px;
   height: 100%;
   justify-content: center;
-  padding: 4px;
+  padding: 6px 6px;
 }
 .gi-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   color: var(--carolina);
+  text-align: center;
+  margin-bottom: 2px;
 }
 .gi-teams {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   width: 100%;
 }
 .gi-team {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgba(255,255,255,0.1);
-  padding: 2px 5px;
-  border-radius: 4px;
+  background: rgba(255,255,255,0.08);
+  padding: 2px 4px;
+  border-radius: 3px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  overflow: hidden;
 }
 .gi-team .flag-mini {
-  width: 14px;
-  height: 10px;
-  border-radius: 2px;
+  width: 12px;
+  height: 9px;
+  border-radius: 1.5px;
   overflow: hidden;
   flex-shrink: 0;
+  border: 0.5px solid rgba(255,255,255,0.15);
 }
-.gi-team .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+.gi-team .flag-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gi-team-code {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* ========= LOGIN OVERLAY ========= */
 .login-overlay {
@@ -1837,7 +1882,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.8
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.9
   </div>
 
 </div>
@@ -1897,7 +1942,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.8';
+const APP_VERSION = '3.9';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -2350,19 +2395,28 @@ function makeFigCard(opts) {
     div.appendChild(code);
   } else if (isTeamPhoto) {
     div.classList.add('panini-photo');
-    // Slot foto do time · ícone grupo + label
-    const ic = document.createElement('div');
-    ic.className = 'pn-photo-icon';
-    ic.textContent = '👥';
-    div.appendChild(ic);
+    // Slot foto do time · bandeira + bloco de texto
+    const flag = document.createElement('div');
+    flag.className = 'pn-photo-flag';
+    const url = flagURL(opts.code);
+    if (url) flag.innerHTML = `<img src="${url}" alt="${opts.code}" loading="lazy">`;
+    div.appendChild(flag);
+
+    const txt = document.createElement('div');
+    txt.className = 'pn-photo-text';
     const lbl = document.createElement('div');
     lbl.className = 'pn-photo-label';
-    lbl.textContent = 'Foto do Time';
-    div.appendChild(lbl);
+    lbl.textContent = '👥 Foto do time';
+    txt.appendChild(lbl);
+    const team = document.createElement('div');
+    team.className = 'pn-photo-team';
+    team.textContent = opts.teamName || opts.code;
+    txt.appendChild(team);
     const code = document.createElement('div');
     code.className = 'pn-photo-code';
     code.textContent = opts.code + ' ' + opts.n;
-    div.appendChild(code);
+    txt.appendChild(code);
+    div.appendChild(txt);
   } else if (player) {
     // Slot de jogador · estilo Panini: CODE + N em cima, sobrenome embaixo
     div.classList.add('panini-player');
@@ -2474,7 +2528,7 @@ function renderTeamAlbumPages(team, groupId) {
       ph.innerHTML = `<div class="slot-num">${n}</div>`;
       return ph;
     }
-    const card = makeFigCard({ code: team.code, n });
+    const card = makeFigCard({ code: team.code, n, teamName: team.name });
     if (card) {
       card.classList.add('album-slot');
       if (colSpan) card.style.gridColumn = 'span ' + colSpan;
@@ -2546,7 +2600,7 @@ function renderTeamAlbumPages(team, groupId) {
   const groupTeamsList = (function() {
     const g = ALBUM_GROUPS.find(g => g.id === groupId);
     if (!g) return '';
-    return g.teams.map(t => `<span class="gi-team"><span class="flag-mini">${flagURL(t.code) ? '<img src="'+flagURL(t.code)+'" alt="">' : ''}</span>${t.code}</span>`).join('');
+    return g.teams.map(t => `<span class="gi-team"><span class="flag-mini">${flagURL(t.code) ? '<img src="'+flagURL(t.code)+'" alt="">' : ''}</span><span class="gi-team-code">${t.code}</span></span>`).join('');
   })();
   p2Grid.appendChild(makeStaticSlot(`
     <div class="group-info">
