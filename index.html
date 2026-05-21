@@ -863,6 +863,27 @@ td.num-cell *,
 .login-label input:focus {
   border-color: var(--carolina);
 }
+.pass-wrap {
+  position: relative;
+}
+.pass-wrap input {
+  width: 100%;
+  padding-right: 44px;
+}
+.pass-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 10px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+.pass-toggle:hover { opacity: 1; }
 .login-error {
   font-size: 12px;
   color: var(--accent);
@@ -1686,11 +1707,14 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
     <form class="login-form" id="login-form" onsubmit="return false;">
       <label class="login-label">
         <span>Usuário</span>
-        <input type="text" id="login-user" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="davi">
+        <input type="text" id="login-user" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="davi">
       </label>
       <label class="login-label">
         <span>Senha</span>
-        <input type="password" id="login-pass" autocomplete="current-password" inputmode="numeric" placeholder="••••••">
+        <div class="pass-wrap">
+          <input type="password" id="login-pass" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="numeric" placeholder="••••••">
+          <button type="button" class="pass-toggle" id="pass-toggle" tabindex="-1" aria-label="Mostrar senha">👁</button>
+        </div>
       </label>
       <div class="login-error" id="login-error"></div>
       <button type="submit" class="login-btn primary" id="login-submit">Entrar</button>
@@ -1811,7 +1835,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.5
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.6
   </div>
 
 </div>
@@ -1871,7 +1895,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.5';
+const APP_VERSION = '3.6';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -2109,8 +2133,10 @@ function doLogout() {
 }
 
 function tryLogin(user, pass) {
-  const u = (user || '').trim().toLowerCase();
-  const p = (pass || '').trim();
+  // Trim agressivo (remove espaços, quebras de linha, e caracteres de controle)
+  const u = (user || '').replace(/\s+/g, '').toLowerCase();
+  const p = (pass || '').replace(/\s+/g, '');
+  console.log('[tryLogin] u="' + u + '" len=' + u.length + ' · p.length=' + p.length + ' · esperado="' + AUTH_OWNER.user + '" pLen=' + AUTH_OWNER.pass.length);
   if (u === AUTH_OWNER.user && p === AUTH_OWNER.pass) {
     setStoredAuth('owner');
     applyAuthMode('owner');
@@ -2118,7 +2144,11 @@ function tryLogin(user, pass) {
     document.getElementById('login-error').textContent = '';
     return true;
   }
-  document.getElementById('login-error').textContent = 'Usuário ou senha incorretos';
+  let err = 'Usuário ou senha incorretos';
+  if (!u && !p) err = 'Preencha usuário e senha';
+  else if (!u) err = 'Preencha o usuário';
+  else if (!p) err = 'Preencha a senha';
+  document.getElementById('login-error').textContent = err;
   if (navigator.vibrate) navigator.vibrate([30, 80, 30]);
   return false;
 }
@@ -3559,18 +3589,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ===== LOGIN HANDLERS =====
-  // Form submit (Enter ou botão Entrar)
+  // Submit do form (cobre Enter e clique no botão Entrar)
   document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const u = document.getElementById('login-user').value;
     const p = document.getElementById('login-pass').value;
+    console.log('[login] tentativa · user="' + u + '" · pass.length=' + p.length);
     tryLogin(u, p);
   });
-  document.getElementById('login-submit').addEventListener('click', (e) => {
-    e.preventDefault();
-    const u = document.getElementById('login-user').value;
-    const p = document.getElementById('login-pass').value;
-    tryLogin(u, p);
+  // Toggle mostrar/ocultar senha
+  document.getElementById('pass-toggle').addEventListener('click', () => {
+    const pass = document.getElementById('login-pass');
+    const btn = document.getElementById('pass-toggle');
+    if (pass.type === 'password') {
+      pass.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      pass.type = 'password';
+      btn.textContent = '👁';
+    }
   });
   // Entrar como visitante
   document.getElementById('login-visitor').addEventListener('click', enterAsVisitor);
