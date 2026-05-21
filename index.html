@@ -1837,7 +1837,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.7
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.8
   </div>
 
 </div>
@@ -1897,7 +1897,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.7';
+const APP_VERSION = '3.8';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -3223,7 +3223,7 @@ function renderMissingPage() {
     html += `<span>${t.name} <span style="color:var(--muted);font-weight:500;font-size:12px;">${t.code}</span></span>`;
     html += `<span class="count">${t.have}/${t.total}</span>`;
     html += '</h3>';
-    html += `<div class="nums">${compactRanges(t.missing)}</div>`;
+    html += `<div class="nums">${t.missing.join(', ')}</div>`;
     html += '</div>';
   });
   el.innerHTML = html;
@@ -3262,7 +3262,7 @@ function buildShareTextMissing() {
   if (data.length === 0) return '🎉 Álbum completo! Davi Magalhães terminou a coleção da Copa 2026.';
   let txt = `*Davi Magalhães · Figurinhas Copa 2026*\n*Faltam ${data.reduce((s, t) => s + t.missing.length, 0)} figurinhas*\n\n`;
   data.forEach(t => {
-    txt += `${t.name} (${t.code}): ${compactRanges(t.missing)}\n`;
+    txt += `${t.name} (${t.code}): ${t.missing.join(', ')}\n`;
   });
   txt += '\nTem alguma dessas pra trocar?';
   return txt;
@@ -3453,7 +3453,7 @@ function exportPDFMissingCompact() {
   }
   const total = data.reduce((s, t) => s + t.missing.length, 0);
   // Item por seleção: "Nome (CODE): 1, 3, 5-8, 12"
-  const items = data.map(t => `${t.name} (${t.code}): ${compactRanges(t.missing)}`);
+  const items = data.map(t => `${t.name} (${t.code}): ${t.missing.join(', ')}`);
   buildCompactPDF(
     'Davi Magalhães · Figurinhas Copa 2026',
     `Faltam ${total} figurinhas · ${data.length} seleções`,
