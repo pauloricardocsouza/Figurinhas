@@ -613,7 +613,6 @@ td.num-cell *,
   justify-content: center;
   gap: 12px;
   padding: 12px;
-  min-height: 100%;
   overflow: hidden;
 }
 .fig-card.panini-photo .pn-photo-flag {
@@ -752,9 +751,11 @@ td.num-cell *,
   color: var(--muted);
   letter-spacing: 0.05em;
 }
-/* Quando slot ocupa 2 colunas, libera a proporção 3/4 para não ficar largo demais */
+/* Quando slot ocupa 2 colunas: mantém mesma altura visual dos vizinhos.
+   Slot normal = 1 col × proporção 3/4 (alt = larg × 4/3).
+   Slot span 2 = 2 cols (~2× largura) × mesma altura = aspect 6/4 = 3/2. */
 .album-grid > [style*="grid-column: span 2"] {
-  aspect-ratio: auto;
+  aspect-ratio: 3 / 2;
 }
 .album-slot.static {
   background: linear-gradient(135deg, var(--prussian), var(--sapphire));
@@ -2196,7 +2197,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.12
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.13
   </div>
 
 </div>
@@ -2319,7 +2320,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.12';
+const APP_VERSION = '3.13';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
