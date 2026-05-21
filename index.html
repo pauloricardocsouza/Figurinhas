@@ -838,20 +838,12 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   <input type="file" id="file-import" accept="application/json" style="display:none">
 
   <div class="sheet-section">
-    <div class="label">Código de Coleção · sincroniza entre aparelhos</div>
+    <div class="label">Coleção sincronizada</div>
     <div class="code-display">
       <div class="code" id="code-current">--</div>
       <button id="btn-copy-code">Copiar</button>
     </div>
-    <div class="code-help">Use o mesmo código em outros aparelhos para sincronizar.</div>
-
-    <div style="margin-top: 14px;">
-      <input type="text" class="code-input" id="code-input" placeholder="R2-XXXX-XXXX" maxlength="11">
-      <button class="sheet-btn" id="btn-use-code" style="margin-top:8px;">
-        <span class="icon">⇄</span>
-        <div>Usar esse código</div>
-      </button>
-    </div>
+    <div class="code-help">Todos os aparelhos que abrem este link compartilham automaticamente a mesma coleção.</div>
   </div>
 
   <div class="sheet-section">
@@ -867,9 +859,13 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '2.0';
+const APP_VERSION = '2.2';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
+
+// Código fixo da coleção. Todos os aparelhos que abrirem o app usam esse código,
+// então qualquer dispositivo sincroniza automaticamente sem setup.
+const OWNER_CODE = 'R2-8JTY-6GWD';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCvKBsydrJO2CM4OgM3nEVsTyLKRNhapZo",
@@ -992,20 +988,14 @@ async function bootstrap() {
     return;
   }
 
-  // pega ou cria código
-  let code = localStorage.getItem(STORAGE_CODE_KEY);
-  if (!code || !isValidCode(code)) {
-    code = genCode();
-    localStorage.setItem(STORAGE_CODE_KEY, code);
-  }
-  await attachToCollection(code);
+  // Código fixo · todos os aparelhos abrem na mesma coleção
+  await attachToCollection(OWNER_CODE);
   hideLoader();
 }
 
 async function attachToCollection(code) {
   if (dbRef) { dbRef.off(); dbRef = null; }
   collectionCode = code;
-  localStorage.setItem(STORAGE_CODE_KEY, code);
   document.getElementById('code-current').textContent = code;
   document.getElementById('sync-code').textContent = '· ' + code;
 
@@ -1492,22 +1482,86 @@ function toast(msg, duration = 2500) {
 // =================== EXPORT/IMPORT/PDF ===================
 async function exportPDF() {
   toast('Gerando PDF...');
-  // Forçar visão de tabela para o PDF
-  const body = document.body;
-  const prevClass = body.className;
-  body.className = 'view-mode-table';
-  await new Promise(r => setTimeout(r, 100));
+
+  // Cria um container off-screen com largura fixa de desktop
+  // para que o HTML renderize ignorando as media queries de mobile
+  const clone = document.createElement('div');
+  clone.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: -10000px;
+    width: 1180px;
+    background: white;
+    padding: 24px;
+    z-index: -1;
+    font-family: 'Sora', sans-serif;
+    color: #13293D;
+  `;
+
+  // Cabeçalho do PDF
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-bottom: 18px; border-bottom: 2px solid #13293D; padding-bottom: 12px;';
+  const stats = (() => {
+    let have = 0, dup = 0;
+    for (const k in state) {
+      const v = state[k];
+      if (v >= 1) { have++; if (v > 1) dup += (v - 1); }
+    }
+    return { have, missing: TOTAL_SPACES - have, dup, pct: ((have / TOTAL_SPACES) * 100).toFixed(1) };
+  })();
+  header.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;">Figurinhas Copa 2026</div>
+        <div style="font-size:12px;color:#5a7388;font-weight:500;margin-top:4px;text-transform:uppercase;letter-spacing:0.04em;">
+          Álbum Panini FIFA World Cup 2026™ · 994 espaços · ${new Date().toLocaleDateString('pt-BR')}
+        </div>
+      </div>
+      <div style="display:flex;gap:24px;font-family:'JetBrains Mono',monospace;">
+        <div style="text-align:right;"><div style="font-size:10px;color:#5a7388;text-transform:uppercase;">Tenho</div><div style="font-size:18px;font-weight:700;color:#1B98E0;">${stats.have}</div></div>
+        <div style="text-align:right;"><div style="font-size:10px;color:#5a7388;text-transform:uppercase;">Faltam</div><div style="font-size:18px;font-weight:700;color:#b91c1c;">${stats.missing}</div></div>
+        <div style="text-align:right;"><div style="font-size:10px;color:#5a7388;text-transform:uppercase;">Repetidas</div><div style="font-size:18px;font-weight:700;color:#006494;">${stats.dup}</div></div>
+        <div style="text-align:right;"><div style="font-size:10px;color:#5a7388;text-transform:uppercase;">Progresso</div><div style="font-size:18px;font-weight:700;">${stats.pct}%</div></div>
+      </div>
+    </div>
+  `;
+  clone.appendChild(header);
+
+  // Clona o conteúdo do table-container atual
+  const tableContent = document.getElementById('table-container').cloneNode(true);
+
+  // Força estilos desktop nos elementos da tabela (vence media queries mobile)
+  tableContent.querySelectorAll('table.figs, table.special').forEach(t => {
+    t.style.fontSize = '12px';
+    t.style.tableLayout = 'fixed';
+    t.style.width = '100%';
+  });
+  tableContent.querySelectorAll('table.figs col.col-pais').forEach(c => { c.style.width = '120px'; });
+  tableContent.querySelectorAll('table.figs col.col-grupo').forEach(c => { c.style.width = '40px'; });
+  tableContent.querySelectorAll('table.figs col.col-sigla').forEach(c => { c.style.width = '46px'; });
+  tableContent.querySelectorAll('table.figs col.col-num').forEach(c => { c.style.minWidth = '38px'; });
+  tableContent.querySelectorAll('td, th').forEach(c => { c.style.height = '26px'; });
+  tableContent.querySelectorAll('td.pais-cell').forEach(c => { c.style.fontSize = '12px'; c.style.paddingRight = '8px'; });
+
+  clone.appendChild(tableContent);
+
+  document.body.appendChild(clone);
+
+  // Aguarda renderização e fontes
+  await new Promise(r => setTimeout(r, 250));
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch(e) {}
+  }
 
   try {
-    const area = document.getElementById('capture-area');
-    area.classList.add('capture-mode');
-    const canvas = await html2canvas(area, {
-      scale: 2, backgroundColor: '#ffffff', useCORS: true,
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      width: 1180 + 48, // largura + padding
+      windowWidth: 1280,
     });
-    area.classList.remove('capture-mode');
-    body.className = prevClass;
 
-    const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     const pageW = pdf.internal.pageSize.getWidth();
@@ -1516,8 +1570,9 @@ async function exportPDF() {
     const usableW = pageW - margin * 2;
     const imgRatio = canvas.height / canvas.width;
     const imgH = usableW * imgRatio;
+
     if (imgH <= pageH - margin * 2) {
-      pdf.addImage(imgData, 'PNG', margin, margin, usableW, imgH);
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, margin, usableW, imgH);
     } else {
       const pageImgH = pageH - margin * 2;
       const pageImgPxH = (pageImgH / usableW) * canvas.width;
@@ -1535,9 +1590,10 @@ async function exportPDF() {
     pdf.save('figurinhas-copa-2026_' + new Date().toISOString().slice(0,10) + '.pdf');
     toast('PDF salvo');
   } catch(e) {
-    toast('Erro ao gerar PDF');
+    toast('Erro ao gerar PDF: ' + (e.message || ''), 4000);
     console.error(e);
-    body.className = prevClass;
+  } finally {
+    document.body.removeChild(clone);
   }
 }
 
@@ -1642,24 +1698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Use other code
-  document.getElementById('btn-use-code').addEventListener('click', () => {
-    const input = document.getElementById('code-input');
-    const code = input.value.trim().toUpperCase();
-    if (!isValidCode(code)) {
-      toast('Código inválido. Use o formato R2-XXXX-XXXX');
-      return;
-    }
-    if (code === collectionCode) {
-      toast('Você já está nesse código');
-      return;
-    }
-    if (!confirm('Trocar para o código ' + code + '?\n\nOs dados atuais ficarão no código antigo (' + collectionCode + ').')) return;
-    input.value = '';
-    closeSheet();
-    showLoader('Mudando coleção...');
-    attachToCollection(code).then(hideLoader);
-  });
+  // (Código de coleção é fixo · sem opção de trocar)
 
   // Default mode based on viewport
   if (window.innerWidth > 720) {
