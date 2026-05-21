@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Figurinhas Copa 2026</title>
+<title>Davi Magalhães · Figurinhas da Copa 2026</title>
 <meta name="theme-color" content="#13293D">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,6 +65,14 @@ html, body {
   gap: 14px;
   align-items: center;
 }
+.brand .owner {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--sapphire);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
 .brand h1 {
   font-size: 20px;
   font-weight: 800;
@@ -79,6 +87,14 @@ html, body {
   margin-top: 2px;
 }
 .brand .sub b { color: var(--sapphire); font-weight: 700; }
+.brand .last-update {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 6px;
+}
+.brand .last-update b { color: var(--ink); font-weight: 700; }
 
 .menu-btn {
   font-family: inherit;
@@ -345,6 +361,23 @@ html, body {
   overflow: hidden;
 }
 .fig-card:hover { border-color: var(--cadetan); transform: translateY(-1px); }
+
+/* Bloquear seleção e menu de longpress nativo do iOS/Android dentro de cards e células de figurinha */
+.fig-card,
+.fig-card *,
+td.num-cell,
+td.num-cell *,
+.team-head,
+.team-head *,
+.group-header,
+.group-header * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
 .fig-card .fc-num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
@@ -704,21 +737,40 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 }
 
 /* ========= RESPONSIVE ========= */
+/* ========= VIEW MODE SWITCH ========= */
+/* O body tem .view-mode-cards ou .view-mode-table · controla qual aparece */
+.view-mode-cards .view-table { display: none; }
+.view-mode-table .view-cards { display: none; }
+
+/* Tabela com scroll horizontal · mobile e desktop */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* No mobile, força largura mínima pra forçar o scroll horizontal */
+@media (max-width: 720px) {
+  .table-wrap table.figs,
+  .table-wrap table.special {
+    min-width: 900px;
+  }
+  /* aviso visual de scroll */
+  .table-wrap {
+    background-image: linear-gradient(to right, transparent 0%, rgba(19,41,61,0.05) 100%);
+    background-size: 24px 100%;
+    background-position: right;
+    background-repeat: no-repeat;
+  }
+}
+
 @media (max-width: 720px) {
   .topbar { grid-template-columns: 1fr auto; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .tabs { grid-template-columns: repeat(4, 1fr); }
   .tab { font-size: 11px; padding: 10px 4px; }
   .tab .badge { display: block; margin-top: 2px; margin-left: 0; }
-  /* default mobile = cards */
-  .view-mode-table .view-cards { display: none; }
-  .view-mode-table .view-table { display: block; }
 }
 
 @media (min-width: 721px) {
-  /* default desktop = table */
-  .view-mode-cards .view-table { display: none; }
-  .view-mode-table .view-cards { display: none; }
   .stat .value { font-size: 26px; }
   .brand h1 { font-size: 22px; }
   .brand .sub { font-size: 12px; }
@@ -762,8 +814,10 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
   <header class="topbar">
     <div class="brand">
-      <h1>Figurinhas Copa 2026</h1>
+      <div class="owner">Davi Magalhães</div>
+      <h1>Figurinhas da Copa 2026</h1>
       <div class="sub">Álbum <b>Panini FIFA World Cup 2026™</b> · 994 espaços</div>
+      <div class="last-update" id="last-update">—</div>
       <div class="sync-pill" id="sync-pill" style="margin-top: 8px;">
         <span class="dot"></span>
         <span id="sync-text">conectando</span>
@@ -811,7 +865,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v2.0
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v2.5
   </div>
 
 </div>
@@ -859,7 +913,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.5';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -951,6 +1005,7 @@ let state = {};
 let collectionCode = null;
 let dbRef = null;
 let isWriting = false; // evita loop de eco
+let lastUpdate = null;
 let pendingUpdate = null;
 let currentFilter = 'all';
 let collapsedGroups = new Set();
@@ -1012,8 +1067,12 @@ async function attachToCollection(code) {
     } else {
       state = {};
     }
+    if (data && data.updated) {
+      lastUpdate = data.updated;
+    }
     setSyncStatus('online', 'sincronizado');
     renderAll();
+    renderLastUpdate();
   }, (err) => {
     console.error('DB error:', err);
     setSyncStatus('offline', 'sem conexão');
@@ -1052,12 +1111,16 @@ function cellStatus(code, n) {
 function toggleCell(code, n) {
   const k = keyOf(code, n);
   state[k] = (state[k] || 0) + 1;
-  renderAll();      // <- UI atualiza IMEDIATAMENTE
+  lastUpdate = Date.now();
+  renderAll();
+  renderLastUpdate();
   pushState();
 }
 function clearCell(code, n) {
   delete state[keyOf(code, n)];
-  renderAll();      // <- UI atualiza IMEDIATAMENTE
+  lastUpdate = Date.now();
+  renderAll();
+  renderLastUpdate();
   pushState();
 }
 
@@ -1129,16 +1192,22 @@ function attachCellEvents(el, code, n) {
     e.preventDefault();
     clearCell(code, n);
   });
+  el.addEventListener('selectstart', (e) => e.preventDefault());
+  el.addEventListener('dragstart', (e) => e.preventDefault());
+
   let timer;
   el.addEventListener('touchstart', (e) => {
     el._longPressed = false;
     timer = setTimeout(() => {
       el._longPressed = true;
+      // feedback tátil curto (se suportado pelo dispositivo)
+      if (navigator.vibrate) navigator.vibrate(30);
       clearCell(code, n);
     }, 600);
   }, { passive: true });
   el.addEventListener('touchend', () => { if (timer) clearTimeout(timer); });
   el.addEventListener('touchmove', () => { if (timer) clearTimeout(timer); });
+  el.addEventListener('touchcancel', () => { if (timer) clearTimeout(timer); });
 }
 
 function teamProgress(teamCode) {
@@ -1453,6 +1522,25 @@ function updateStats() {
   document.getElementById('b-dup').textContent = dup;
 }
 
+function renderLastUpdate() {
+  const el = document.getElementById('last-update');
+  if (!el) return;
+  if (!lastUpdate) {
+    el.innerHTML = 'Última atualização: <b>—</b>';
+    return;
+  }
+  const d = new Date(lastUpdate);
+  // Formato: "20 de maio de 2026 às 21:47" (horário de Brasília · UTC-3)
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  // Renderiza no fuso de Brasília independente do fuso do dispositivo
+  const opts = { timeZone: 'America/Sao_Paulo' };
+  const day   = new Intl.DateTimeFormat('pt-BR', { ...opts, day: '2-digit' }).format(d);
+  const month = parseInt(new Intl.DateTimeFormat('pt-BR', { ...opts, month: '2-digit' }).format(d), 10);
+  const year  = new Intl.DateTimeFormat('pt-BR', { ...opts, year: 'numeric' }).format(d);
+  const time  = new Intl.DateTimeFormat('pt-BR', { ...opts, hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+  el.innerHTML = 'Última atualização: <b>' + day + ' de ' + meses[month-1] + ' de ' + year + ' às ' + time + '</b>';
+}
+
 function renderAll() {
   updateStats();
   renderCards();
@@ -1509,12 +1597,29 @@ async function exportPDF() {
     }
     return { have, missing: TOTAL_SPACES - have, dup, pct: ((have / TOTAL_SPACES) * 100).toFixed(1) };
   })();
+  // Última atualização formatada para o PDF
+  const lastUpdateStr = (() => {
+    if (!lastUpdate) return 'sem registro';
+    const d = new Date(lastUpdate);
+    const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    const opts = { timeZone: 'America/Sao_Paulo' };
+    const day   = new Intl.DateTimeFormat('pt-BR', { ...opts, day: '2-digit' }).format(d);
+    const month = parseInt(new Intl.DateTimeFormat('pt-BR', { ...opts, month: '2-digit' }).format(d), 10);
+    const year  = new Intl.DateTimeFormat('pt-BR', { ...opts, year: 'numeric' }).format(d);
+    const time  = new Intl.DateTimeFormat('pt-BR', { ...opts, hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+    return day + ' de ' + meses[month-1] + ' de ' + year + ' às ' + time;
+  })();
+
   header.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-end;">
       <div>
-        <div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;">Figurinhas Copa 2026</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;color:#006494;text-transform:uppercase;margin-bottom:4px;">Davi Magalhães</div>
+        <div style="font-size:24px;font-weight:800;letter-spacing:-0.02em;">Figurinhas da Copa 2026</div>
         <div style="font-size:12px;color:#5a7388;font-weight:500;margin-top:4px;text-transform:uppercase;letter-spacing:0.04em;">
-          Álbum Panini FIFA World Cup 2026™ · 994 espaços · ${new Date().toLocaleDateString('pt-BR')}
+          Álbum Panini FIFA World Cup 2026™ · 994 espaços
+        </div>
+        <div style="font-size:11px;color:#5a7388;font-weight:500;margin-top:6px;font-family:'JetBrains Mono',monospace;">
+          Última atualização: <b style="color:#13293D;font-weight:700;">${lastUpdateStr}</b>
         </div>
       </div>
       <div style="display:flex;gap:24px;font-family:'JetBrains Mono',monospace;">
@@ -1535,6 +1640,7 @@ async function exportPDF() {
     t.style.fontSize = '12px';
     t.style.tableLayout = 'fixed';
     t.style.width = '100%';
+    t.style.minWidth = '0'; // remove min-width mobile
   });
   tableContent.querySelectorAll('table.figs col.col-pais').forEach(c => { c.style.width = '120px'; });
   tableContent.querySelectorAll('table.figs col.col-grupo').forEach(c => { c.style.width = '40px'; });
@@ -1548,7 +1654,7 @@ async function exportPDF() {
   document.body.appendChild(clone);
 
   // Aguarda renderização e fontes
-  await new Promise(r => setTimeout(r, 250));
+  await new Promise(r => setTimeout(r, 350));
   if (document.fonts && document.fonts.ready) {
     try { await document.fonts.ready; } catch(e) {}
   }
@@ -1558,8 +1664,10 @@ async function exportPDF() {
       scale: 2,
       backgroundColor: '#ffffff',
       useCORS: true,
-      width: 1180 + 48, // largura + padding
-      windowWidth: 1280,
+      width: 1228,           // largura do clone (1180 + 48 de padding)
+      height: clone.scrollHeight,
+      windowWidth: 1280,     // viewport simulado para html2canvas
+      windowHeight: clone.scrollHeight + 200,
     });
 
     const { jsPDF } = window.jspdf;
