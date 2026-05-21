@@ -611,18 +611,20 @@ td.num-cell *,
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 14px 16px;
+  gap: 12px;
+  padding: 12px;
   min-height: 100%;
+  overflow: hidden;
 }
 .fig-card.panini-photo .pn-photo-flag {
-  height: 80%;
+  flex: 0 0 38%;
+  max-width: 120px;
   aspect-ratio: 4 / 3;
   border-radius: 8px;
   overflow: hidden;
-  flex-shrink: 0;
   border: 2px solid rgba(0,0,0,0.08);
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  align-self: center;
 }
 .fig-card.panini-photo .pn-photo-flag img {
   width: 100%; height: 100%; object-fit: cover; display: block;
@@ -632,7 +634,7 @@ td.num-cell *,
   flex-direction: column;
   gap: 3px;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
 }
 .fig-card.panini-photo .pn-photo-label {
   font-size: 9px;
@@ -643,10 +645,10 @@ td.num-cell *,
   line-height: 1.1;
 }
 .fig-card.panini-photo .pn-photo-team {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--card-name);
-  line-height: 1.05;
+  line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -724,6 +726,31 @@ td.num-cell *,
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
+}
+/* Card dimmed pra FWC/CC quando filtro esconde · mantém posição na grade */
+.fig-card.dimmed-card {
+  background: var(--paper);
+  border: 1px dashed var(--line);
+  opacity: 0.32;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.fig-card.dimmed-card .dim-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.fig-card.dimmed-card .dim-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
 }
 /* Quando slot ocupa 2 colunas, libera a proporção 3/4 para não ficar largo demais */
 .album-grid > [style*="grid-column: span 2"] {
@@ -2169,7 +2196,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.11
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.12
   </div>
 
 </div>
@@ -2292,7 +2319,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.11';
+const APP_VERSION = '3.12';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -3021,14 +3048,27 @@ function renderCards() {
     fwcBlock.className = 'team-block';
     const grid = document.createElement('div');
     grid.className = 'cards-grid';
-    let count = 0;
+    let visibleCount = 0;
     for (let i = 0; i <= 19; i++) {
       const display = i < 10 ? ('0' + i) : String(i);
       const icon = fwcIcon(i);
-      const card = makeFigCard({ code: 'FWC', n: i, isSpecial: true, icon, displayNum: display });
-      if (card) { grid.appendChild(card); count++; }
+      // Cria slot visível ou dimmed conforme filtro
+      const st = cellStatus('FWC', i);
+      let visible = true;
+      if (currentFilter === 'have' && !st.have) visible = false;
+      if (currentFilter === 'missing' && st.have) visible = false;
+      if (currentFilter === 'dup' && st.dup === 0) visible = false;
+      if (visible) {
+        const card = makeFigCard({ code: 'FWC', n: i, isSpecial: true, icon, displayNum: display });
+        if (card) { grid.appendChild(card); visibleCount++; }
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'fig-card dimmed-card';
+        ph.innerHTML = `<div class="dim-num">${display}</div><div class="dim-code">FWC</div>`;
+        grid.appendChild(ph);
+      }
     }
-    if (count === 0) {
+    if (visibleCount === 0) {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
       empty.innerHTML = '<span class="em">·</span> nenhuma figurinha nesse filtro';
@@ -3135,12 +3175,24 @@ function renderCards() {
     ccBlock.className = 'team-block';
     const grid = document.createElement('div');
     grid.className = 'cards-grid';
-    let count = 0;
+    let visibleCount = 0;
     for (let i = 1; i <= 14; i++) {
-      const card = makeFigCard({ code: 'CC', n: i, isSpecial: true, icon: '⚽', displayNum: 'CC' + i });
-      if (card) { grid.appendChild(card); count++; }
+      const st = cellStatus('CC', i);
+      let visible = true;
+      if (currentFilter === 'have' && !st.have) visible = false;
+      if (currentFilter === 'missing' && st.have) visible = false;
+      if (currentFilter === 'dup' && st.dup === 0) visible = false;
+      if (visible) {
+        const card = makeFigCard({ code: 'CC', n: i, isSpecial: true, icon: '⚽', displayNum: 'CC' + i });
+        if (card) { grid.appendChild(card); visibleCount++; }
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'fig-card dimmed-card';
+        ph.innerHTML = `<div class="dim-num">CC${i}</div>`;
+        grid.appendChild(ph);
+      }
     }
-    if (count === 0) {
+    if (visibleCount === 0) {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
       empty.innerHTML = '<span class="em">·</span> nenhuma figurinha nesse filtro';
