@@ -610,31 +610,32 @@ td.num-cell *,
   border: 1px solid var(--line);
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
+  justify-content: center;
+  gap: 14px;
+  padding: 14px 16px;
+  min-height: 100%;
 }
 .fig-card.panini-photo .pn-photo-flag {
-  width: 48px;
-  height: 36px;
-  border-radius: 5px;
+  height: 80%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
-  border: 1.5px solid rgba(0,0,0,0.08);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border: 2px solid rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 .fig-card.panini-photo .pn-photo-flag img {
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 .fig-card.panini-photo .pn-photo-text {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
   min-width: 0;
   flex: 1;
 }
 .fig-card.panini-photo .pn-photo-label {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
@@ -642,10 +643,10 @@ td.num-cell *,
   line-height: 1.1;
 }
 .fig-card.panini-photo .pn-photo-team {
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--card-name);
-  line-height: 1.1;
+  line-height: 1.05;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -653,10 +654,10 @@ td.num-cell *,
 .fig-card.panini-photo .pn-photo-code {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   letter-spacing: 0.05em;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 .fig-card.panini-photo.have,
 .fig-card.panini-photo.dup {
@@ -1016,6 +1017,292 @@ html[data-theme="dark"] .visitor-banner {
   font-family: inherit;
 }
 .visitor-banner button:hover { background: rgba(0,0,0,0.2); }
+
+/* ========= OCR MODAL ========= */
+.ocr-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 20, 40, 0.78);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+}
+.ocr-overlay[hidden] { display: none; }
+.ocr-card {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 22px 18px 18px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.ocr-close {
+  position: absolute;
+  top: 10px; right: 12px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  font-family: inherit;
+}
+.ocr-close:hover { color: var(--ink); }
+.ocr-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+.ocr-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+.ocr-mode-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ocr-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--paper-soft);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ocr-mode-btn:hover { border-color: var(--cadetan); background: var(--paper); }
+.ocr-mode-btn:active { transform: scale(0.99); }
+.ocr-mode-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+.ocr-mode-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.ocr-mode-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.ocr-preview {
+  width: 100%;
+  max-height: 200px;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ocr-preview img {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+.ocr-progress {
+  height: 6px;
+  background: var(--paper-soft);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 14px 0 8px;
+}
+.ocr-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--carolina), var(--sapphire));
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.ocr-status {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 12px;
+}
+.ocr-cancel-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--paper-soft);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+.ocr-results {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin: 4px 0 12px;
+  border-radius: 8px;
+  background: var(--paper-soft);
+  padding: 6px;
+}
+.ocr-team-group {
+  margin-bottom: 8px;
+}
+.ocr-team-group:last-child { margin-bottom: 0; }
+.ocr-team-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ocr-team-header .flag-mini {
+  width: 18px; height: 13px;
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ocr-team-header .flag-mini img { width: 100%; height: 100%; object-fit: cover; }
+.ocr-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  border: 1.5px solid transparent;
+}
+.ocr-item.checked { border-color: var(--carolina); background: rgba(27, 152, 224, 0.06); }
+.ocr-item.error { opacity: 0.5; border-color: var(--line); }
+.ocr-item .check {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  border: 2px solid var(--line);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  font-size: 14px;
+  background: var(--paper);
+  transition: background 0.1s, border-color 0.1s;
+}
+.ocr-item.checked .check {
+  background: var(--carolina);
+  border-color: var(--carolina);
+}
+.ocr-item.checked .check::after { content: '✓'; }
+.ocr-item .info {
+  flex: 1;
+  min-width: 0;
+}
+.ocr-item .code {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--ink);
+}
+.ocr-item .name {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ocr-item .tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.ocr-item .tag.have-mine { background: var(--have); color: white; }
+.ocr-item .tag.dup-mine { background: var(--dup); color: white; }
+.ocr-item .tag.need { background: #16a34a; color: white; }
+.ocr-item .tag.skip { background: #94a3b8; color: white; }
+.ocr-item .tag.new { background: var(--carolina); color: white; }
+.ocr-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.ocr-btn-primary, .ocr-btn-secondary {
+  flex: 1;
+  padding: 12px;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+}
+.ocr-btn-primary {
+  background: var(--carolina);
+  color: white;
+}
+.ocr-btn-primary:hover { background: var(--sapphire); }
+.ocr-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.ocr-btn-secondary {
+  background: var(--paper-soft);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.ocr-btn-secondary:hover { border-color: var(--cadetan); }
+.ocr-trade-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.ocr-trade-stat {
+  background: var(--paper-soft);
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+.ocr-trade-stat .v {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+.ocr-trade-stat.good .v { color: #16a34a; }
+.ocr-trade-stat.skip .v { color: #94a3b8; }
+.ocr-trade-stat .lbl {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ocr-empty {
+  text-align: center;
+  padding: 30px 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
 
 /* ========= MENU SHEET ========= */
 .sheet-backdrop {
@@ -1882,7 +2169,7 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
   </div>
 
   <div class="footer-info">
-    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.9
+    R2 Soluções Empresariais · <b>figurinhas.solucoesr2.com.br</b> · v3.11
   </div>
 
 </div>
@@ -1896,6 +2183,12 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
     <span class="icon">↓</span>
     <div><div>Exportar PDF</div><div style="font-size:11px;color:var(--muted);font-weight:500;margin-top:2px">Tabela completa para imprimir</div></div>
   </button>
+
+  <button class="sheet-btn" id="btn-photo-import">
+    <span class="icon">📸</span>
+    <div><div>Importar por foto</div><div style="font-size:11px;color:var(--muted);font-weight:500;margin-top:2px">Reconhece códigos das figurinhas via OCR</div></div>
+  </button>
+  <input type="file" id="file-photo" accept="image/*" capture="environment" style="display:none">
 
   <button class="sheet-btn" id="btn-export">
     <span class="icon">⤓</span>
@@ -1938,11 +2231,68 @@ table.special td.num-cell.dup { background: var(--dup); color: white; font-weigh
 
 </div>
 
+<!-- MODAL DE OCR / IMPORTAR POR FOTO -->
+<div class="ocr-overlay" id="ocr-modal" hidden>
+  <div class="ocr-card">
+    <button class="ocr-close" id="ocr-close" aria-label="Fechar">×</button>
+
+    <!-- Etapa 1: Escolher modo -->
+    <div class="ocr-step" data-step="mode">
+      <h2 class="ocr-title">📸 Importar por foto</h2>
+      <p class="ocr-sub">Tire uma foto de figurinhas avulsas sobre uma mesa, com boa luz e sem sobreposição.</p>
+      <div class="ocr-mode-grid">
+        <button class="ocr-mode-btn" data-mode="mine">
+          <div class="ocr-mode-icon">🧒</div>
+          <div class="ocr-mode-title">Minhas figurinhas</div>
+          <div class="ocr-mode-desc">Marca como tenho/repetida na minha coleção</div>
+        </button>
+        <button class="ocr-mode-btn" data-mode="theirs">
+          <div class="ocr-mode-icon">🤝</div>
+          <div class="ocr-mode-title">De alguém pra trocar</div>
+          <div class="ocr-mode-desc">Cruza com minhas faltantes pra ver o que serve</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Etapa 2: Processando -->
+    <div class="ocr-step" data-step="processing" hidden>
+      <h2 class="ocr-title">🔍 Analisando foto...</h2>
+      <div class="ocr-preview" id="ocr-preview-wrap"></div>
+      <div class="ocr-progress">
+        <div class="ocr-progress-bar" id="ocr-progress-bar"></div>
+      </div>
+      <div class="ocr-status" id="ocr-status">Carregando reconhecedor...</div>
+      <button class="ocr-cancel-btn" id="ocr-cancel">Cancelar</button>
+    </div>
+
+    <!-- Etapa 3: Revisar resultados -->
+    <div class="ocr-step" data-step="review" hidden>
+      <h2 class="ocr-title" id="ocr-review-title">Encontradas X figurinhas</h2>
+      <p class="ocr-sub" id="ocr-review-sub">Desmarque os erros antes de confirmar. Toque para alterar.</p>
+      <div class="ocr-results" id="ocr-results"></div>
+      <div class="ocr-actions">
+        <button class="ocr-btn-secondary" id="ocr-retake">Tirar outra</button>
+        <button class="ocr-btn-primary" id="ocr-confirm">Aplicar</button>
+      </div>
+    </div>
+
+    <!-- Etapa 4: Resultado da troca (modo theirs) -->
+    <div class="ocr-step" data-step="trade-result" hidden>
+      <h2 class="ocr-title">🤝 Resultado da troca</h2>
+      <div class="ocr-trade-summary" id="ocr-trade-summary"></div>
+      <div class="ocr-results" id="ocr-trade-results"></div>
+      <div class="ocr-actions">
+        <button class="ocr-btn-secondary" id="ocr-trade-close">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // =================== CONFIG ===================
-const APP_VERSION = '3.9';
+const APP_VERSION = '3.11';
 const TOTAL_SPACES = 994;
 const STORAGE_CODE_KEY = 'fc2026-code';
 
@@ -3537,6 +3887,399 @@ function exportPDFDupCompact() {
   );
 }
 
+// =================== OCR · IMPORTAR POR FOTO ===================
+const OCR = {
+  TESSERACT_CDN: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+  tesseractLoaded: false,
+  mode: null,           // 'mine' ou 'theirs'
+  candidates: [],       // [{ code, n, key, player, status }]
+  cancelled: false,
+};
+
+// Códigos válidos (PLAYERS já existe + especiais)
+function ocrValidCodes() {
+  const codes = new Set(Object.keys(PLAYERS));
+  codes.add('FWC');
+  codes.add('CC');
+  return codes;
+}
+
+// Carrega Tesseract.js sob demanda · retorna Promise
+function ocrLoadTesseract() {
+  return new Promise((resolve, reject) => {
+    if (window.Tesseract) { resolve(window.Tesseract); return; }
+    const script = document.createElement('script');
+    script.src = OCR.TESSERACT_CDN;
+    script.onload = () => {
+      if (window.Tesseract) resolve(window.Tesseract);
+      else reject(new Error('Tesseract não disponível após carregar'));
+    };
+    script.onerror = () => reject(new Error('Falha ao baixar Tesseract'));
+    document.head.appendChild(script);
+  });
+}
+
+// Pré-processa imagem · redimensiona pra max 1920px (lado maior) e retorna data URL
+function ocrPreprocessImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Imagem inválida'));
+      img.onload = () => {
+        const MAX = 1920;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          const r = Math.min(MAX / w, MAX / h);
+          w = Math.round(w * r);
+          h = Math.round(h * r);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        // Boost de contraste leve · sem exagerar para não distorcer
+        try {
+          const data = ctx.getImageData(0, 0, w, h);
+          const px = data.data;
+          for (let i = 0; i < px.length; i += 4) {
+            // Grayscale baseado em luminância
+            const g = px[i] * 0.299 + px[i+1] * 0.587 + px[i+2] * 0.114;
+            // Aumenta contraste em torno de 128
+            const c = (g - 128) * 1.2 + 128;
+            const v = Math.max(0, Math.min(255, c));
+            px[i] = px[i+1] = px[i+2] = v;
+          }
+          ctx.putImageData(data, 0, 0);
+        } catch(e) { /* se falhar, segue com original */ }
+        resolve(canvas.toDataURL('image/jpeg', 0.92));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Parseia texto OCR e extrai candidatos de figurinhas
+// Procura padrões: SIGLA + número, considerando variações ("MEX 5", "MEX5", "MEX  5")
+function ocrParseText(rawText) {
+  const codes = ocrValidCodes();
+  const found = new Map(); // key -> { code, n, key, player }
+
+  // Normaliza · uppercase, troca caracteres comuns confundidos
+  let txt = rawText.toUpperCase();
+  // Correções comuns do Tesseract
+  txt = txt.replace(/[|]/g, '1'); // pipe vira 1
+  txt = txt.replace(/O(?=\d)/g, '0'); // O antes de número vira 0
+  txt = txt.replace(/(?<=\d)O/g, '0'); // O depois de número vira 0
+
+  // Regex captura: 2-4 letras + opcional espaço/separador + número
+  const regex = /\b([A-Z]{2,4})[\s\-:.]*(\d{1,3})\b/g;
+  let m;
+  while ((m = regex.exec(txt)) !== null) {
+    let code = m[1];
+    const n = parseInt(m[2], 10);
+
+    // FWC pode aparecer como "FWC 0"-"FWC 19"
+    // CC vem grudado: "CC1"-"CC14"
+    let valid = false;
+    if (codes.has(code)) {
+      if (code === 'FWC' && n >= 0 && n <= 19) valid = true;
+      else if (code === 'CC' && n >= 1 && n <= 14) valid = true;
+      else if (PLAYERS[code] && n >= 1 && n <= 20) valid = true;
+    }
+    if (!valid) continue;
+
+    const key = code + '-' + n;
+    if (found.has(key)) continue; // dedup
+
+    let player = null;
+    if (PLAYERS[code]) player = getPlayer(code, n);
+
+    found.set(key, { code, n, key, player });
+  }
+
+  // Também captura "CC1, CC2..." sem espaço
+  const regexCC = /\bCC[\s]*(\d{1,2})\b/g;
+  while ((m = regexCC.exec(txt)) !== null) {
+    const n = parseInt(m[1], 10);
+    if (n < 1 || n > 14) continue;
+    const key = 'CC-' + n;
+    if (!found.has(key)) found.set(key, { code: 'CC', n, key, player: null });
+  }
+
+  return Array.from(found.values()).sort((a, b) => {
+    // FWC e CC por último, depois por code, depois por n
+    const groupA = a.code === 'FWC' ? 2 : (a.code === 'CC' ? 3 : 1);
+    const groupB = b.code === 'FWC' ? 2 : (b.code === 'CC' ? 3 : 1);
+    if (groupA !== groupB) return groupA - groupB;
+    if (a.code !== b.code) return a.code.localeCompare(b.code);
+    return a.n - b.n;
+  });
+}
+
+// Calcula status atual de cada candidato na minha coleção
+function ocrAnnotate(candidates) {
+  return candidates.map(c => {
+    const cur = state[c.key] || 0;
+    let mineStatus;
+    if (cur === 0) mineStatus = 'missing';
+    else if (cur === 1) mineStatus = 'have';
+    else mineStatus = 'dup';
+    return { ...c, mineStatus };
+  });
+}
+
+// Abre o modal · etapa "mode"
+function ocrOpenModal() {
+  if (blockIfVisitor('Importar por foto')) return;
+  OCR.cancelled = false;
+  OCR.mode = null;
+  OCR.candidates = [];
+  ocrShowStep('mode');
+  document.getElementById('ocr-modal').hidden = false;
+}
+
+function ocrCloseModal() {
+  OCR.cancelled = true;
+  document.getElementById('ocr-modal').hidden = true;
+  // Limpa estado
+  OCR.candidates = [];
+  OCR.mode = null;
+  // Reseta o input file
+  const inp = document.getElementById('file-photo');
+  if (inp) inp.value = '';
+}
+
+function ocrShowStep(name) {
+  document.querySelectorAll('#ocr-modal .ocr-step').forEach(el => {
+    el.hidden = el.dataset.step !== name;
+  });
+}
+
+function ocrSetProgress(pct, statusText) {
+  document.getElementById('ocr-progress-bar').style.width = pct + '%';
+  if (statusText) document.getElementById('ocr-status').textContent = statusText;
+}
+
+// Roda OCR sobre o arquivo de imagem
+async function ocrRun(file) {
+  ocrShowStep('processing');
+  ocrSetProgress(2, 'Preparando imagem...');
+
+  try {
+    // 1. Preview
+    const dataUrl = await ocrPreprocessImage(file);
+    if (OCR.cancelled) return;
+    const previewWrap = document.getElementById('ocr-preview-wrap');
+    previewWrap.innerHTML = '<img src="' + dataUrl + '" alt="">';
+
+    // 2. Carrega Tesseract
+    ocrSetProgress(8, 'Carregando reconhecedor (~2 MB)...');
+    const Tesseract = await ocrLoadTesseract();
+    if (OCR.cancelled) return;
+
+    // 3. Cria worker
+    ocrSetProgress(12, 'Inicializando OCR...');
+    const worker = await Tesseract.createWorker('eng', 1, {
+      logger: (info) => {
+        if (OCR.cancelled) return;
+        if (info.status === 'recognizing text') {
+          const pct = 30 + Math.round(info.progress * 60);
+          ocrSetProgress(pct, `Lendo texto... ${Math.round(info.progress * 100)}%`);
+        }
+      },
+    });
+    if (OCR.cancelled) { await worker.terminate(); return; }
+
+    // 4. Configurações: aceita só letras maiúsculas e números, e PSM 11 (sparse text)
+    await worker.setParameters({
+      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ',
+      tessedit_pageseg_mode: '11', // sparse text
+    });
+
+    // 5. Reconhece
+    ocrSetProgress(30, 'Lendo texto...');
+    const result = await worker.recognize(dataUrl);
+    await worker.terminate();
+    if (OCR.cancelled) return;
+
+    ocrSetProgress(95, 'Identificando códigos...');
+    const rawText = result.data.text || '';
+    console.log('[OCR] texto bruto:', rawText);
+    const candidates = ocrParseText(rawText);
+    const annotated = ocrAnnotate(candidates);
+    OCR.candidates = annotated;
+
+    ocrSetProgress(100, 'Pronto!');
+    setTimeout(() => {
+      if (OCR.cancelled) return;
+      if (OCR.mode === 'theirs') ocrShowTradeResult();
+      else ocrShowReview();
+    }, 350);
+  } catch(e) {
+    console.error('[OCR] erro:', e);
+    toast('Erro no OCR: ' + (e.message || 'desconhecido'));
+    ocrCloseModal();
+  }
+}
+
+// Etapa "review" · modo "minhas"
+function ocrShowReview() {
+  const data = OCR.candidates;
+  const title = document.getElementById('ocr-review-title');
+  const sub = document.getElementById('ocr-review-sub');
+  const out = document.getElementById('ocr-results');
+
+  if (data.length === 0) {
+    title.textContent = 'Nenhuma figurinha encontrada';
+    sub.textContent = 'Tente outra foto · luz boa, sem sombras, e figurinhas separadas funcionam melhor.';
+    out.innerHTML = '<div class="ocr-empty">Nada detectado. Tire outra foto?</div>';
+    document.getElementById('ocr-confirm').disabled = true;
+  } else {
+    title.textContent = `Encontradas ${data.length} figurinhas`;
+    sub.textContent = 'Toque para marcar/desmarcar. Apenas as marcadas serão aplicadas.';
+    out.innerHTML = ocrBuildItemsHTML(data, 'mine');
+    document.getElementById('ocr-confirm').disabled = false;
+  }
+  ocrShowStep('review');
+  ocrBindItemClicks();
+}
+
+// Etapa "trade-result" · modo "alguém pra trocar"
+function ocrShowTradeResult() {
+  const data = OCR.candidates;
+  const wrap = document.getElementById('ocr-trade-summary');
+  const out = document.getElementById('ocr-trade-results');
+
+  if (data.length === 0) {
+    wrap.innerHTML = '';
+    out.innerHTML = '<div class="ocr-empty">Nenhuma figurinha detectada na foto.</div>';
+    ocrShowStep('trade-result');
+    return;
+  }
+
+  // Separa: você precisa (missing) vs você já tem (have ou dup)
+  const need = data.filter(c => c.mineStatus === 'missing');
+  const skip = data.filter(c => c.mineStatus !== 'missing');
+
+  wrap.innerHTML = `
+    <div class="ocr-trade-stat good"><div class="v">${need.length}</div><div class="lbl">Você precisa</div></div>
+    <div class="ocr-trade-stat skip"><div class="v">${skip.length}</div><div class="lbl">Você já tem</div></div>
+  `;
+  let html = '';
+  if (need.length > 0) {
+    html += '<div class="ocr-team-header" style="color:#16a34a;">✅ Boas pra troca</div>';
+    html += ocrBuildItemsHTML(need, 'trade-need');
+  }
+  if (skip.length > 0) {
+    html += '<div class="ocr-team-header" style="margin-top:8px;">⊘ Você já tem</div>';
+    html += ocrBuildItemsHTML(skip, 'trade-skip');
+  }
+  out.innerHTML = html;
+  ocrShowStep('trade-result');
+}
+
+// Constrói HTML da lista de itens · contexto define os tags
+function ocrBuildItemsHTML(items, context) {
+  // Agrupa por code
+  const byCode = new Map();
+  items.forEach(it => {
+    if (!byCode.has(it.code)) byCode.set(it.code, []);
+    byCode.get(it.code).push(it);
+  });
+
+  let html = '';
+  for (const [code, group] of byCode) {
+    const teamName = (function() {
+      if (code === 'FWC') return 'FIFA World Cup';
+      if (code === 'CC') return 'Coca-Cola';
+      for (const g of ALBUM_GROUPS) {
+        const t = g.teams.find(t => t.code === code);
+        if (t) return t.name;
+      }
+      return code;
+    })();
+
+    const flag = (function() {
+      if (code === 'FWC' || code === 'CC') return '';
+      const url = flagURL(code);
+      return url ? `<span class="flag-mini"><img src="${url}" alt=""></span>` : '';
+    })();
+
+    html += `<div class="ocr-team-group">`;
+    html += `<div class="ocr-team-header">${flag}<span>${teamName} · ${code}</span></div>`;
+    group.forEach(it => {
+      const playerName = it.player ? (firstName(it.player) ? firstName(it.player) + ' ' + lastName(it.player).toUpperCase() : lastName(it.player).toUpperCase()) : '';
+      let tag = '';
+      if (context === 'mine') {
+        if (it.mineStatus === 'missing') tag = '<span class="tag new">NOVA</span>';
+        else if (it.mineStatus === 'have') tag = '<span class="tag have-mine">já tenho</span>';
+        else tag = '<span class="tag dup-mine">repetida</span>';
+      } else if (context === 'trade-need') {
+        tag = '<span class="tag need">PRECISO</span>';
+      } else if (context === 'trade-skip') {
+        if (it.mineStatus === 'have') tag = '<span class="tag have-mine">tenho</span>';
+        else if (it.mineStatus === 'dup') tag = '<span class="tag dup-mine">repetida</span>';
+      }
+      const isCheckable = context === 'mine';
+      html += `<div class="ocr-item ${isCheckable ? 'checked' : ''}" data-key="${it.key}" data-context="${context}">`;
+      if (isCheckable) html += '<div class="check"></div>';
+      html += '<div class="info">';
+      html += `<div class="code">${it.code} ${it.n}</div>`;
+      if (playerName) html += `<div class="name">${playerName}</div>`;
+      html += '</div>';
+      html += tag;
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+  return html;
+}
+
+// Toggle de seleção dos itens
+function ocrBindItemClicks() {
+  document.querySelectorAll('#ocr-results .ocr-item[data-context="mine"]').forEach(el => {
+    el.addEventListener('click', () => {
+      el.classList.toggle('checked');
+    });
+  });
+}
+
+// Aplica figurinhas selecionadas (modo mine)
+function ocrApplyMine() {
+  if (blockIfVisitor('Aplicar figurinhas')) return;
+  const selected = [];
+  document.querySelectorAll('#ocr-results .ocr-item.checked').forEach(el => {
+    const key = el.dataset.key;
+    const cand = OCR.candidates.find(c => c.key === key);
+    if (cand) selected.push(cand);
+  });
+  if (selected.length === 0) {
+    toast('Nada selecionado');
+    return;
+  }
+  // Aplica · cada candidato incrementa em 1 (1 toque · se já tem vira repetida)
+  let added = 0, dups = 0;
+  selected.forEach(c => {
+    const prev = state[c.key] || 0;
+    state[c.key] = prev + 1;
+    pushHistory(prev === 0 ? 'add' : 'dup', c.code, c.n);
+    if (prev === 0) added++; else dups++;
+  });
+  lastUpdate = Date.now();
+  renderAll();
+  renderLastUpdate();
+  pushState();
+  const msg = `${added} adicionada${added !== 1 ? 's' : ''}, ${dups} repetida${dups !== 1 ? 's' : ''}`;
+  toast('✅ ' + msg);
+  ocrCloseModal();
+}
+
+// =================== fim OCR ===================
+
 // =================== STATS PAGE ===================
 function renderStatsPage() {
   const el = document.getElementById('stats-content');
@@ -3788,6 +4531,38 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('file-import').addEventListener('change', (e) => {
     if (e.target.files[0]) importJSON(e.target.files[0]);
     e.target.value = '';
+  });
+
+  // OCR · Importar por foto
+  document.getElementById('btn-photo-import').addEventListener('click', () => {
+    closeSheet();
+    ocrOpenModal();
+  });
+  document.getElementById('ocr-close').addEventListener('click', ocrCloseModal);
+  document.getElementById('ocr-cancel').addEventListener('click', ocrCloseModal);
+  document.getElementById('ocr-trade-close').addEventListener('click', ocrCloseModal);
+  document.getElementById('ocr-retake').addEventListener('click', () => {
+    document.getElementById('file-photo').click();
+  });
+  document.getElementById('ocr-confirm').addEventListener('click', ocrApplyMine);
+  // Cliques nos botões de modo (mine/theirs)
+  document.querySelectorAll('#ocr-modal .ocr-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      OCR.mode = btn.dataset.mode;
+      document.getElementById('file-photo').click();
+    });
+  });
+  // Quando seleciona arquivo
+  document.getElementById('file-photo').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!OCR.mode) OCR.mode = 'mine'; // padrão se chegou aqui sem ter escolhido
+    e.target.value = ''; // reset pra permitir mesma foto de novo
+    ocrRun(file);
+  });
+  // Click fora fecha
+  document.getElementById('ocr-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'ocr-modal') ocrCloseModal();
   });
 
   // Copy code
